@@ -48,6 +48,32 @@
           <button id="checkBtn" class="primary-btn">
             <span class="btn-icon">⌕</span> Проверить объявление
           </button>
+
+          <button id="advancedToggle" class="link-btn" type="button">⚙️ Указать цены вручную</button>
+
+          <div id="advancedForm" class="advanced-form hidden">
+            <div class="form-title">Данные для расчёта</div>
+            <div class="form-grid">
+              <label>Цена покупки
+                <div class="money-input"><input id="buyInput" type="number" inputmode="decimal" placeholder="1250"><span>BYN</span></div>
+              </label>
+              <label>Цена продажи
+                <div class="money-input"><input id="sellInput" type="number" inputmode="decimal" placeholder="1500"><span>BYN</span></div>
+              </label>
+            </div>
+            <label class="full-label">Расходы / комиссия
+              <div class="money-input"><input id="feeInput" type="number" inputmode="decimal" value="5" min="0" max="100"><span>%</span></div>
+            </label>
+            <div class="condition-row">
+              <span>Состояние</span>
+              <div class="condition-buttons">
+                <button type="button" data-condition="good" class="condition active">Хорошее</button>
+                <button type="button" data-condition="used">Среднее</button>
+                <button type="button" data-condition="bad">Плохое</button>
+              </div>
+            </div>
+          </div>
+
           <div class="supported">
             <span>Пример:</span> вставь любую ссылку — сейчас FLIP покажет демонстрационный результат.
           </div>

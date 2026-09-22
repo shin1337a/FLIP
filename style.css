@@ -45,3 +45,10 @@ button:active{transform:scale(.98)}
 .bottom-nav{position:fixed;z-index:20;left:0;right:0;bottom:0;height:78px;max-width:560px;margin:auto;background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}.nav{flex:1;border:0;background:none;color:#9999a0;font-size:9px;font-weight:700}.nav span{display:block;font-size:20px;line-height:23px;margin-bottom:2px}.nav.active{color:#111}
 .toast{position:fixed;z-index:30;left:18px;right:18px;bottom:90px;max-width:520px;margin:auto;background:#111;color:#fff;border-radius:13px;padding:12px 14px;font-size:11px;text-align:center;opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.toast.show{opacity:1;transform:translateY(0)}
 @media(min-width:600px){body{padding-top:10px}.bottom-nav{border-radius:20px 20px 0 0}}
+
+.link-btn{display:block;width:100%;border:0;background:none;color:#555;font-size:11px;font-weight:750;padding:12px 4px 4px}
+.advanced-form{margin-top:10px;padding:13px;border-radius:15px;background:#f7f7f8;border:1px solid var(--line)}
+.form-title{font-size:12px;font-weight:850;margin-bottom:10px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.advanced-form label{font-size:9px;color:var(--muted);font-weight:700}.money-input{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;height:42px;padding:0 9px;margin-top:5px}.money-input input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:13px}.money-input span{font-size:9px;color:var(--muted)}
+.full-label{display:block;margin-top:9px}.condition-row{margin-top:10px}.condition-row>span{font-size:9px;color:var(--muted);font-weight:700}.condition-buttons{display:flex;gap:5px;margin-top:5px}.condition{flex:1;border:0;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 4px;font-size:9px;color:#777}.condition.active{background:#111;color:#fff;border-color:#111}
+.calc-note{font-size:10px;color:var(--muted);line-height:1.4;margin-top:9px}

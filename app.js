@@ -68,7 +68,7 @@ function renderHistory(){
       <div class="item-icon">🔎</div>
       <div class="item-main">
         <b>${escapeHtml(item.product)}</b>
-        <span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · +${item.gross} BYN</span>
+        <span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · ${item.net >= 0 ? "+" : ""}${item.net} BYN</span>
       </div>
       <button class="delete-btn" data-delete-history="${i}">×</button>
     </div>
@@ -90,24 +90,45 @@ function domainFromUrl(value){
   }
 }
 
-function makeDemoAnalysis(url){
-  // Демо-логика: позже этот блок будет заменён реальным backend/API.
+function makeAnalysis(url){
   const domain = domainFromUrl(url);
-  const buy = 1250;
-  const market = 1500;
-  const gross = market - buy;
-  const expenses = Math.round(market * 0.05);
-  const net = gross - expenses;
-  const score = 74;
+  const buy = Number($("buyInput").value || 1250);
+  const market = Number($("sellInput").value || 1500);
+  const feePercent = Math.max(0, Math.min(100, Number($("feeInput").value || 5)));
+  const condition = document.querySelector(".condition.active")?.dataset.condition || "good";
+
+  if(buy <= 0 || market <= 0){
+    toast("Укажи цены больше 0");
+    return null;
+  }
+
+  const fee = Math.round(market * feePercent / 100);
+  const gross = Math.round(market - buy);
+  const net = Math.round(gross - fee);
+
+  // Локальная оценка: маржа + запас после расходов + поправка на состояние.
+  const margin = market ? gross / market : 0;
+  const conditionBonus = condition === "good" ? 8 : condition === "used" ? 0 : -14;
+  let score = Math.round(50 + margin * 70 + (net > 0 ? 15 : -25) + conditionBonus);
+  score = Math.max(5, Math.min(98, score));
+
+  let risk = "Средний", riskClass = "medium";
+  if(score >= 78){ risk = "Низкий"; riskClass = "low"; }
+  if(score < 50){ risk = "Высокий"; riskClass = "high"; }
+
+  let label = "Есть что проверить";
+  if(score >= 78) label = "Интересный потенциал";
+  else if(score < 50) label = "Осторожно";
 
   return {
-    product:"iPhone 13 128GB",
-    domain,
-    buy, market, gross, net, score,
-    risk:"Средний",
-    riskClass:"medium",
-    riskText:"Главный риск — состояние товара, комплект и реальная цена, по которой аналог действительно продаётся.",
-    label:"Есть что проверить"
+    product:"Товар из объявления",
+    domain, buy, market, gross, fee, net, feePercent,
+    score, risk, riskClass, condition, label,
+    riskText: condition === "bad"
+      ? "Состояние заметно повышает риск. Сначала проверь дефекты и реальную цену продажи."
+      : net > 0
+        ? "Расчёт положительный, но перед покупкой нужно проверить товар и спрос."
+        : "После расходов расчёт не даёт положительной разницы — проверь цену покупки и продажи."
   };
 }
 
@@ -129,7 +150,9 @@ function runCheck(){
   }
 
   state.checks++;
-  state.current = makeDemoAnalysis(value);
+  state.current = makeAnalysis(value);
+  if(!state.current) return;
+  $("saveResult").textContent = "♡ Сохранить в избранное";
   const r = state.current;
 
   $("resultSource").textContent = `${r.domain} · демонстрационный расчёт`;
@@ -137,7 +160,8 @@ function runCheck(){
   $("buyPrice").textContent = `${r.buy.toLocaleString("ru-RU")} BYN`;
   $("marketPrice").textContent = `${r.market.toLocaleString("ru-RU")} BYN`;
   $("gross").textContent = `+${r.gross.toLocaleString("ru-RU")} BYN`;
-  $("net").textContent = `+${r.net.toLocaleString("ru-RU")} BYN`;
+  $("net").textContent = `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN`;
+  $("riskText").textContent = `${r.riskText} Расходы: ${r.feePercent}% (${r.fee.toLocaleString("ru-RU")} BYN).`;
   $("score").textContent = r.score;
   $("scoreLabel").textContent = r.label;
   $("riskBadge").textContent = r.risk;
@@ -148,6 +172,7 @@ function runCheck(){
     product:r.product,
     domain:r.domain,
     gross:r.gross,
+    net:r.net,
     time:new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})
   };
   state.history.unshift(historyItem);
@@ -244,6 +269,31 @@ $("clearHistory").addEventListener("click", () => {
   if(!state.history.length){ toast("История уже пустая"); return; }
   state.history = [];
   persist(); renderHistory(); toast("История очищена");
+});
+
+$("advancedToggle").addEventListener("click", () => {
+  const form = $("advancedForm");
+  form.classList.toggle("hidden");
+  $("advancedToggle").textContent = form.classList.contains("hidden")
+    ? "⚙️ Указать цены вручную"
+    : "⌃ Скрыть дополнительные данные";
+});
+
+document.querySelectorAll(".condition").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".condition").forEach(x => x.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+
+["buyInput","sellInput","feeInput"].forEach(id => {
+  $(id).addEventListener("input", () => {
+    const b = Number($("buyInput").value || 0);
+    const s = Number($("sellInput").value || 0);
+    if(b > 0 && s > 0 && $("advancedForm").classList.contains("hidden") === false){
+      $("checkBtn").textContent = "⚡ Пересчитать";
+    }
+  });
 });
 
 updateStats();
