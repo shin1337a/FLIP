@@ -1,101 +1,118 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#09090a">
-<title>FLIP</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0b0c">
+  <title>FLIP</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
-<header class="topbar">
-  <div class="miniBrand">FLIP <b>1.2.2</b></div>
-  <div class="online"><i></i> готов</div>
-</header>
+  <header class="top">
+    <div class="brand"><span>FLIP</span><b>1.2.1</b></div>
+    <div class="status">● готов</div>
+  </header>
 
-<main>
-<section id="home" class="screen active">
-  <div class="hero">
-    <div class="heroLogo">FLIP <span>1.2.2</span></div>
-    <h1>Находи товары<br><em>с потенциалом.</em></h1>
-    <p>Сравнивай цену покупки с рынком, считай расходы и проверяй товар перед сделкой.</p>
-  </div>
-
-  <div class="panel">
-    <label>Ссылка на объявление <small>необязательно</small></label>
-    <input id="url" class="input" type="url" inputmode="url" autocomplete="off"
-      placeholder="https://..." autocapitalize="none" spellcheck="false">
-    <div class="hint">Можно анализировать и без ссылки — просто заполни данные ниже.</div>
-  </div>
-
-  <div class="panel dataPanel">
-    <button id="toggleAdvanced" class="sectionBtn" type="button">
-      <span><strong>Данные для расчёта</strong><small>необязательно, но точнее</small></span><b id="chevron">⌄</b>
-    </button>
-    <div id="advanced">
-      <div class="grid2">
-        <div><label>Цена покупки</label><input id="buyPrice" class="input num" type="number" inputmode="decimal" min="0" step="0.01" value="100"></div>
-        <div><label>Цена продажи <small>если известна</small></label><input id="sellPrice" class="input num" type="number" inputmode="decimal" min="0" step="0.01" placeholder="необязательно"></div>
+  <main>
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div class="eyebrow">RESALE ANALYZER</div>
+        <h1>Нашёл товар?<br><span>Проверь его.</span></h1>
+        <p>FLIP сравнит цену покупки с рынком и покажет потенциальную маржу.</p>
       </div>
 
-      <label>Аналоги на рынке <small>до 5 цен</small></label>
-      <div class="analogGrid">
-        <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1450" placeholder="1">
-        <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1490" placeholder="2">
-        <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1550" placeholder="3">
-        <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1590" placeholder="4">
-        <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1620" placeholder="5">
+      <div class="panel">
+        <label>Ссылка на объявление <small>необязательно</small></label>
+        <input id="url" class="input" type="url" inputmode="url" autocomplete="off"
+               placeholder="https://..." autocapitalize="none" spellcheck="false">
+        <div class="hint">Сейчас ссылка сохраняется для истории. Автосбор данных с площадок — следующий этап.</div>
       </div>
 
-      <div class="grid2">
-        <div><label>Расходы / комиссия</label><div class="suffix"><input id="fee" class="input num" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="5"><span>%</span></div></div>
-        <div><label>Состояние</label><select id="condition" class="input"><option value="good">Хорошее</option><option value="used">Б/у, есть следы</option><option value="bad">Плохое</option></select></div>
+      <button id="analyzeBtn" class="primary">🔍 Анализировать возможность</button>
+
+      <div class="panel">
+        <button id="toggleAdvanced" class="sectionBtn" type="button">
+          <span>Данные для расчёта</span><span id="chevron">⌄</span>
+        </button>
+        <div id="advanced">
+          <div class="grid2">
+            <div>
+              <label>Цена покупки</label>
+              <input id="buyPrice" class="input num" type="number" inputmode="decimal" min="0" step="0.01" value="100">
+            </div>
+            <div>
+              <label>Цена продажи <small>необязательно</small></label>
+              <input id="sellPrice" class="input num" type="number" inputmode="decimal" min="0" step="0.01" placeholder="если известна">
+            </div>
+          </div>
+
+          <label>Аналоги на рынке <small>до 5 цен</small></label>
+          <div class="analogGrid">
+            <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1450" placeholder="1">
+            <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1490" placeholder="2">
+            <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1550" placeholder="3">
+            <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1590" placeholder="4">
+            <input class="input analog num" type="number" inputmode="decimal" min="0" step="0.01" value="1620" placeholder="5">
+          </div>
+
+          <div class="grid2">
+            <div>
+              <label>Расходы / комиссия</label>
+              <div class="suffix"><input id="fee" class="input num" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="5"><span>%</span></div>
+            </div>
+            <div>
+              <label>Состояние</label>
+              <select id="condition" class="input">
+                <option value="good">Хорошее</option>
+                <option value="used">Б/у, есть следы</option>
+                <option value="bad">Плохое</option>
+              </select>
+            </div>
+          </div>
+          <div class="hint">Если цена продажи указана — FLIP использует её. Если нет — берёт медиану введённых аналогов.</div>
+        </div>
       </div>
-      <div class="hint">Если цена продажи указана — она используется для расчёта. Если нет — FLIP берёт медиану аналогов.</div>
-    </div>
-  </div>
 
-  <button id="analyzeBtn" class="primary">🔍 Анализировать возможность</button>
-  <div id="result" class="result hidden"></div>
-</section>
+      <div id="result" class="result hidden"></div>
+      <div id="toast" class="toast"></div>
+    </section>
 
-<section id="history" class="screen">
-  <div class="pageHead"><div><h2>История</h2><p>Твои прошлые анализы</p></div><button id="historySelect" class="textBtn">Выбрать</button></div>
-  <div id="historyTools" class="tools hidden"><button id="historyAll">Выбрать всё</button><button id="historyDelete" class="danger">Удалить выбранное</button><button id="historyCancel">Отмена</button></div>
-  <div id="historyList" class="list"></div>
-  <div id="emptyHistory" class="emptyState"><div>◷</div><b>История пока пуста</b><p>Проведи первый анализ — он появится здесь.</p></div>
-</section>
+    <section id="history" class="screen">
+      <div class="pageTitle"><span>История</span><div class="pageActions"><small>последние расчёты</small><button id="historySelect" class="textBtn">Выбрать</button></div></div>
+      <div id="historyTools" class="tools hidden"><button id="historyAll">Выбрать всё</button><button id="historyDelete" class="danger">Удалить выбранное</button><button id="historyCancel">Отмена</button></div>
+      <div id="historyList"></div>
+      <div id="emptyHistory" class="empty">Пока нет расчётов.</div>
+    </section>
 
-<section id="favorites" class="screen">
-  <div class="pageHead"><div><h2>Избранное</h2><p>Сохранённые возможности</p></div><button id="favSelect" class="textBtn">Выбрать</button></div>
-  <div id="favTools" class="tools hidden"><button id="favAll">Выбрать всё</button><button id="favDelete" class="danger">Удалить выбранное</button><button id="favCancel">Отмена</button></div>
-  <div id="favoritesList" class="list"></div>
-  <div id="emptyFavorites" class="emptyState"><div>♡</div><b>Здесь пока пусто</b><p>Нажимай на сердечко у результата, чтобы сохранить объявление.</p></div>
-</section>
+    <section id="favorites" class="screen">
+      <div class="pageTitle"><span>Избранное</span><div class="pageActions"><small>сохранённые возможности</small><button id="favSelect" class="textBtn">Выбрать</button></div></div>
+      <div id="favTools" class="tools hidden"><button id="favAll">Выбрать всё</button><button id="favDelete" class="danger">Удалить выбранное</button><button id="favCancel">Отмена</button></div>
+      <div id="favoritesList"></div>
+      <div id="emptyFavorites" class="empty">Здесь появятся сохранённые расчёты.</div>
+    </section>
 
-<section id="profile" class="screen">
-  <div class="pageHead"><div><h2>Профиль</h2><p>Твоя статистика FLIP</p></div></div>
-  <div class="profileCard">
-    <div class="profileIcon">F</div><div><b>FLIP user</b><span>Анализируй. Проверяй. Решай.</span></div>
-  </div>
-  <div class="stats">
-    <div><b id="statChecks">0</b><span>анализов</span></div>
-    <div><b id="statFav">0</b><span>избранных</span></div>
-    <div><b id="statAvg">0</b><span>средний score</span></div>
-  </div>
-  <div class="panel infoPanel"><b>Как работает FLIP</b><p>Ты вводишь цену покупки и данные рынка. FLIP считает ориентир по медиане, расходы, потенциальный результат и score.</p></div>
-  <div class="panel roadmap"><b>Что дальше</b><div>01 <span>Автоматический сбор данных объявлений</span></div><div>02 <span>Реальные аналоги рынка</span></div><div>03 <span>Умный анализ категорий</span></div></div>
-</section>
-</main>
+    <section id="profile" class="screen">
+      <div class="pageTitle"><span>Профиль</span><small>твоя статистика</small></div>
+      <div class="stats">
+        <div><b id="statChecks">0</b><span>анализов</span></div>
+        <div><b id="statFav">0</b><span>избранных</span></div>
+        <div><b id="statAvg">0</b><span>средний score</span></div>
+      </div>
+      <div class="panel roadmap">
+        <b>FLIP roadmap</b>
+        <p>1.2.1 — ручной рынок и расчёт</p>
+        <p>Дальше — автоматический сбор аналогов и данных объявления.</p>
+      </div>
+    </section>
+  </main>
 
-<nav class="nav">
-<button data-screen="home" class="navItem active"><span>⌂</span>Главная</button>
-<button data-screen="history" class="navItem"><span>◷</span>История</button>
-<button data-screen="favorites" class="navItem"><span>♡</span>Избранное</button>
-<button data-screen="profile" class="navItem"><span>◉</span>Профиль</button>
-</nav>
-<div id="toast" class="toast"></div>
+  <nav class="nav">
+    <button data-screen="home" class="navItem active"><span>⌂</span>Главная</button>
+    <button data-screen="history" class="navItem"><span>◷</span>История</button>
+    <button data-screen="favorites" class="navItem"><span>☆</span>Избранное</button>
+    <button data-screen="profile" class="navItem"><span>◉</span>Профиль</button>
+  </nav>
 </div>
 <script src="app.js"></script>
 </body>
