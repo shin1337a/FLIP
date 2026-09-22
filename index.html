@@ -11,7 +11,7 @@
   <div class="app">
     <header class="topbar">
       <div>
-        <div class="brand">FLIP <span>1.0</span></div>
+        <div class="brand">FLIP <span>1.2</span></div>
         <div class="muted">Поиск возможностей для перепродажи</div>
       </div>
       <div class="status-dot" title="FLIP Lite"></div>
@@ -34,7 +34,7 @@
         <div class="section-head">
           <div>
             <div class="section-title">Новая проверка</div>
-            <div class="section-sub">Пока работает демо-анализ — без внешних маркетплейсов</div>
+            <div class="section-sub">FLIP оценивает рынок по ценам аналогов — пока вводим их вручную</div>
           </div>
         </div>
 
@@ -57,10 +57,19 @@
               <label>Цена покупки
                 <div class="money-input"><input id="buyInput" type="number" inputmode="decimal" placeholder="1250"><span>BYN</span></div>
               </label>
-              <label>Цена продажи
-                <div class="money-input"><input id="sellInput" type="number" inputmode="decimal" placeholder="1500"><span>BYN</span></div>
+              <label>Цена продажи (если знаешь)
+                <div class="money-input"><input id="sellInput" type="number" inputmode="decimal" placeholder="авто"></div>
               </label>
             </div>
+            <div class="analogs-title">Цены аналогов на рынке</div>
+            <div class="analogs-grid">
+              <input id="analog1" type="number" inputmode="decimal" placeholder="1450">
+              <input id="analog2" type="number" inputmode="decimal" placeholder="1490">
+              <input id="analog3" type="number" inputmode="decimal" placeholder="1550">
+              <input id="analog4" type="number" inputmode="decimal" placeholder="1590">
+              <input id="analog5" type="number" inputmode="decimal" placeholder="1620">
+            </div>
+            <div class="calc-note">FLIP возьмёт медиану аналогов — так один слишком дорогой или дешёвый вариант меньше искажает оценку.</div>
             <label class="full-label">Расходы / комиссия
               <div class="money-input"><input id="feeInput" type="number" inputmode="decimal" value="5" min="0" max="100"><span>%</span></div>
             </label>
@@ -75,7 +84,7 @@
           </div>
 
           <div class="supported">
-            <span>Пример:</span> вставь любую ссылку — сейчас FLIP покажет демонстрационный результат.
+            <span>Как использовать:</span> укажи цену покупки и 3–5 цен похожих объявлений. FLIP сам оценит ориентир рынка.
           </div>
         </div>
 
@@ -143,10 +152,12 @@
           <div class="section-title result-title">Расчёт</div>
           <div class="metric-grid large">
             <div class="metric card"><span>Цена объявления</span><b id="buyPrice">1 250 BYN</b></div>
-            <div class="metric card"><span>Ориентир рынка</span><b id="marketPrice">1 500 BYN</b></div>
+            <div class="metric card"><span>Ориентир рынка</span><b id="marketPrice">1 500 BYN</b><small id="marketMeta">по 5 аналогам</small></div>
             <div class="metric card"><span>Валовая разница</span><b class="green" id="gross">+250 BYN</b></div>
-            <div class="metric card"><span>После 5% расходов</span><b id="net">+175 BYN</b></div>
+            <div class="metric card"><span>После расходов</span><b id="net">+175 BYN</b></div>
           </div>
+
+          <div class="confidence-card card"><div class="row-between"><b>Уверенность оценки</b><span id="confidenceBadge" class="risk medium">Средняя</span></div><p id="confidenceText">Добавь больше похожих объявлений, чтобы оценка была точнее.</p></div>
 
           <div class="risk-card card">
             <div class="row-between"><b>Уровень риска</b><span id="riskBadge" class="risk medium">Средний</span></div>
@@ -162,7 +173,7 @@
           </div>
 
           <button id="saveResult" class="secondary-btn">♡ Сохранить в избранное</button>
-          <div class="disclaimer">⚠️ Расчёт FLIP Lite демонстрационный. Он не учитывает реальные данные площадки и не гарантирует прибыль.</div>
+          <div class="disclaimer">⚠️ Сейчас FLIP не получает цены с площадок автоматически: аналоги вводятся вручную. Расчёт ориентировочный и не гарантирует прибыль.</div>
         </div>
       </section>
 
@@ -204,8 +215,9 @@
           <div class="section-title">Что дальше</div>
           <div class="road-item done"><i>✓</i><span>Интерфейс и навигация</span></div>
           <div class="road-item done"><i>✓</i><span>Локальная история и избранное</span></div>
-          <div class="road-item"><i>3</i><span>Подключение данных площадок</span></div>
-          <div class="road-item"><i>4</i><span>AI-анализ объявлений</span></div>
+          <div class="road-item done"><i>✓</i><span>Оценка рынка по аналогам</span></div>
+          <div class="road-item"><i>4</i><span>Подключение данных площадок</span></div>
+          <div class="road-item"><i>5</i><span>AI-анализ объявлений</span></div>
         </div>
       </section>
     </main>

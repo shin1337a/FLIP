@@ -90,23 +90,39 @@ function domainFromUrl(value){
   }
 }
 
+function median(values){
+  const a = values.filter(v => Number.isFinite(v) && v > 0).sort((x,y) => x-y);
+  if(!a.length) return 0;
+  const mid = Math.floor(a.length / 2);
+  return a.length % 2 ? a[mid] : Math.round((a[mid-1] + a[mid]) / 2);
+}
+
+function getAnalogPrices(){
+  return [1,2,3,4,5]
+    .map(i => Number($(`analog${i}`).value || 0))
+    .filter(v => v > 0);
+}
+
 function makeAnalysis(url){
   const domain = domainFromUrl(url);
   const buy = Number($("buyInput").value || 1250);
-  const market = Number($("sellInput").value || 1500);
+  const manualSell = Number($("sellInput").value || 0);
+  const analogs = getAnalogPrices();
+  const defaultAnalogs = [1450,1490,1550,1590,1620];
+  const marketSamples = analogs.length ? analogs : defaultAnalogs;
+  const marketFromAnalogs = median(marketSamples);
+  const market = manualSell > 0 ? manualSell : marketFromAnalogs;
   const feePercent = Math.max(0, Math.min(100, Number($("feeInput").value || 5)));
   const condition = document.querySelector(".condition.active")?.dataset.condition || "good";
 
   if(buy <= 0 || market <= 0){
-    toast("Укажи цены больше 0");
+    toast("Укажи цену покупки больше 0");
     return null;
   }
 
   const fee = Math.round(market * feePercent / 100);
   const gross = Math.round(market - buy);
   const net = Math.round(gross - fee);
-
-  // Локальная оценка: маржа + запас после расходов + поправка на состояние.
   const margin = market ? gross / market : 0;
   const conditionBonus = condition === "good" ? 8 : condition === "used" ? 0 : -14;
   let score = Math.round(50 + margin * 70 + (net > 0 ? 15 : -25) + conditionBonus);
@@ -120,10 +136,22 @@ function makeAnalysis(url){
   if(score >= 78) label = "Интересный потенциал";
   else if(score < 50) label = "Осторожно";
 
+  const count = analogs.length;
+  const spread = marketSamples.length > 1 ? Math.max(...marketSamples) - Math.min(...marketSamples) : 0;
+  let confidence = "Низкая", confidenceClass = "high";
+  if(count >= 5 && spread / market < 0.18){ confidence = "Высокая"; confidenceClass = "low"; }
+  else if(count >= 3){ confidence = "Средняя"; confidenceClass = "medium"; }
+
+  const confidenceText = count === 0
+    ? "Использованы примерные цены. Добавь свои аналоги для реальной оценки."
+    : count < 3
+      ? `Сейчас учтено ${count} аналог${count === 1 ? '' : 'а'}. Добавь ещё, чтобы уменьшить погрешность.`
+      : `Учтено ${count} аналогов. Медиана снижает влияние слишком дорогих и дешёвых объявлений.`;
+
   return {
-    product:"Товар из объявления",
-    domain, buy, market, gross, fee, net, feePercent,
-    score, risk, riskClass, condition, label,
+    product:"Товар из объявления", domain, buy, market, gross, fee, net, feePercent,
+    score, risk, riskClass, condition, label, manualSell: manualSell > 0, analogs: marketSamples, analogCount: count,
+    confidence, confidenceClass, confidenceText,
     riskText: condition === "bad"
       ? "Состояние заметно повышает риск. Сначала проверь дефекты и реальную цену продажи."
       : net > 0
@@ -159,6 +187,7 @@ function runCheck(){
   $("resultProduct").textContent = r.product;
   $("buyPrice").textContent = `${r.buy.toLocaleString("ru-RU")} BYN`;
   $("marketPrice").textContent = `${r.market.toLocaleString("ru-RU")} BYN`;
+  $("marketMeta").textContent = r.manualSell ? "введено вручную" : `по ${r.analogCount || 5} аналогам`;
   $("gross").textContent = `+${r.gross.toLocaleString("ru-RU")} BYN`;
   $("net").textContent = `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN`;
   $("riskText").textContent = `${r.riskText} Расходы: ${r.feePercent}% (${r.fee.toLocaleString("ru-RU")} BYN).`;
@@ -167,6 +196,9 @@ function runCheck(){
   $("riskBadge").textContent = r.risk;
   $("riskBadge").className = `risk ${r.riskClass}`;
   $("riskText").textContent = r.riskText;
+  $("confidenceBadge").textContent = r.confidence;
+  $("confidenceBadge").className = `risk ${r.confidenceClass}`;
+  $("confidenceText").textContent = r.confidenceText;
 
   const historyItem = {
     product:r.product,
