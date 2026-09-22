@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0b0d">
+  <title>FLIP Lite</title>
+  <style>
+    :root{
+      --bg:#f5f5f7;--card:#fff;--text:#111113;--muted:#77777f;
+      --line:#e8e8ec;--dark:#111113;--soft:#f0f0f2;--green:#159447;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text)}
+    button,input{font:inherit}
+    button{cursor:pointer}
+    .app{max-width:520px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:92px}
+    header{padding:24px 20px 12px}
+    .top{display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:34px;font-weight:900;letter-spacing:-1.8px}
+    .badge{font-size:12px;font-weight:700;background:#111;color:#fff;padding:7px 10px;border-radius:999px}
+    .subtitle{color:var(--muted);font-size:14px;margin-top:5px}
+    .screen{display:none}.screen.active{display:block}
+    .hero{margin:10px 20px 18px;padding:22px;border-radius:24px;background:var(--dark);color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+    .hero h1{font-size:25px;line-height:1.1;margin:0 0 10px;letter-spacing:-.7px}
+    .hero p{margin:0;color:#bdbdc4;line-height:1.45;font-size:14px}
+    .section{padding:0 20px 18px}.title{font-size:19px;font-weight:800;margin-bottom:11px}
+    .search{background:var(--card);border:1px solid var(--line);padding:16px;border-radius:16px}
+    .input{width:100%;border:0;outline:0;background:transparent;font-size:15px}
+    .button{width:100%;border:0;background:var(--dark);color:#fff;border-radius:15px;padding:15px;margin-top:10px;font-weight:800}
+    .button.secondary{background:var(--soft);color:var(--text)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:12px}
+    .row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+    .product{font-weight:800;font-size:17px}.small{font-size:12px;color:var(--muted);margin-top:4px}
+    .heart{border:0;background:var(--soft);border-radius:12px;width:38px;height:38px}
+    .prices{display:flex;gap:10px;margin-top:16px}
+    .pricebox{flex:1;background:#f7f7f8;border-radius:14px;padding:12px}
+    .pricebox span{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+    .pricebox strong{font-size:18px}
+    .profit{margin-top:10px;border-radius:14px;background:#edf8f1;padding:12px;color:var(--green);font-weight:800}
+    .note{font-size:12px;color:var(--muted);line-height:1.4;margin-top:10px}
+    .empty{text-align:center;padding:35px 15px;color:var(--muted)}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px}
+    .stat strong{display:block;font-size:25px;margin-top:5px}
+    .bottom{position:fixed;z-index:5;bottom:0;left:0;right:0;max-width:520px;margin:auto;height:76px;background:rgba(255,255,255,.95);backdrop-filter:blur(15px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding-bottom:env(safe-area-inset-bottom)}
+    .nav{flex:1;border:0;background:none;color:#85858c;font-size:11px;font-weight:600}
+    .nav span{display:block;font-size:21px;margin-bottom:3px}.nav.active{color:#111}
+    .result-box{display:none}.result-box.show{display:block}
+    .toast{position:fixed;left:20px;right:20px;bottom:88px;max-width:480px;margin:auto;background:#111;color:#fff;padding:13px 15px;border-radius:13px;font-size:13px;display:none;z-index:10}
+    .toast.show{display:block}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <section id="home" class="screen active">
+    <header>
+      <div class="top"><div class="logo">FLIP</div><div class="badge">LITE</div></div>
+      <div class="subtitle">Умный помощник для поиска возможностей</div>
+    </header>
+
+    <div class="hero">
+      <h1>Нашёл товар?<br>Проверь его.</h1>
+      <p>Вставь ссылку на объявление. Сейчас FLIP работает как демонстрация — настоящую аналитику подключим следующим этапом.</p>
+    </div>
+
+    <div class="section">
+      <div class="title">Быстрая проверка</div>
+      <div class="search">
+        <input id="url" class="input" type="url" placeholder="Ссылка на объявление">
+      </div>
+      <button class="button" onclick="check()">🔎 Проверить</button>
+    </div>
+
+    <div class="section">
+      <div class="title">Пример возможности</div>
+      <div class="card">
+        <div class="row">
+          <div><div class="product">iPhone 13 128GB</div><div class="small">Пример анализа</div></div>
+          <button class="heart" onclick="save('iPhone 13 128GB')">♡</button>
+        </div>
+        <div class="prices">
+          <div class="pricebox"><span>Цена объявления</span><strong>1 250 BYN</strong></div>
+          <div class="pricebox"><span>Ориентир рынка</span><strong>1 500 BYN</strong></div>
+        </div>
+        <div class="profit">Разница: +250 BYN</div>
+        <div class="note">⚠️ Это демонстрационная оценка, а не гарантия прибыли.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <header><div class="logo">Анализ</div><div class="subtitle">Предварительный результат</div></header>
+    <div class="section">
+      <div class="card">
+        <div class="product">Объявление принято</div>
+        <div class="small" id="resultUrl">Ссылка добавлена</div>
+        <div class="profit" style="margin-top:16px;color:#111;background:#f2f2f4">🤖 Реальный AI-анализ подключим следующим этапом.</div>
+        <div class="note">Пока это FLIP Lite: мы проверяем интерфейс и удобство приложения.</div>
+      </div>
+      <button class="button secondary" onclick="show('home')">← Вернуться</button>
+    </div>
+  </section>
+
+  <section id="saved" class="screen">
+    <header><div class="logo">Избранное</div><div class="subtitle">Сохранённые возможности</div></header>
+    <div class="section" id="savedList"><div class="card empty">❤️ Здесь пока пусто.<br>Сохраняй интересные товары.</div></div>
+  </section>
+
+  <section id="profile" class="screen">
+    <header><div class="logo">Профиль</div><div class="subtitle">Твоя активность в FLIP</div></header>
+    <div class="section">
+      <div class="stats">
+        <div class="stat"><div class="small">Проверок</div><strong id="checks">0</strong></div>
+        <div class="stat"><div class="small">Избранных</div><strong id="savedCount">0</strong></div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="product">FLIP Lite</div>
+        <div class="small">Первая версия продукта. Сейчас тестируем идею и интерфейс.</div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<nav class="bottom">
+  <button class="nav active" onclick="nav('home',this)"><span>⌂</span>Главная</button>
+  <button class="nav" onclick="nav('saved',this)"><span>♡</span>Избранное</button>
+  <button class="nav" onclick="nav('profile',this)"><span>◉</span>Профиль</button>
+</nav>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  let checks = Number(localStorage.getItem('flipChecks') || 0);
+  let saved = JSON.parse(localStorage.getItem('flipSaved') || '[]');
+  updateStats();
+  renderSaved();
+
+  function show(id){
+    document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  function nav(id,btn){
+    show(id);
+    document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function check(){
+    const value=document.getElementById('url').value.trim();
+    if(!value){ toast('Вставь ссылку на объявление'); return; }
+    checks++;
+    localStorage.setItem('flipChecks',checks);
+    document.getElementById('resultUrl').textContent=value;
+    updateStats();
+    show('result');
+  }
+
+  function save(name){
+    if(!saved.includes(name)) saved.push(name);
+    localStorage.setItem('flipSaved',JSON.stringify(saved));
+    updateStats(); renderSaved(); toast('Добавлено в избранное ❤️');
+  }
+
+  function renderSaved(){
+    const box=document.getElementById('savedList');
+    if(!saved.length){
+      box.innerHTML='<div class="card empty">❤️ Здесь пока пусто.<br>Сохраняй интересные товары.</div>';
+      return;
+    }
+    box.innerHTML=saved.map(x=>`<div class="card"><div class="product">${x}</div><div class="small">Сохранено в FLIP</div></div>`).join('');
+  }
+
+  function updateStats(){
+    document.getElementById('checks').textContent=checks;
+    document.getElementById('savedCount').textContent=saved.length;
+  }
+
+  function toast(msg){
+    const t=document.getElementById('toast');
+    t.textContent=msg;t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'),1800);
+  }
+</script>
+</body>
+</html>
