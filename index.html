@@ -169,10 +169,10 @@
 
           <div class="checklist card">
             <b>Что проверить перед покупкой</b>
-            <label><input type="checkbox"> Состояние и комплект</label>
-            <label><input type="checkbox"> IMEI / серийный номер</label>
-            <label><input type="checkbox"> Историю ремонта</label>
-            <label><input type="checkbox"> Реальную цену аналогов</label>
+            <label class="check-item"><input type="checkbox"><span><strong>Состояние и комплект</strong><small>Проверь корпус, экран, аккумулятор и наличие зарядки/коробки.</small></span></label>
+            <label class="check-item"><input type="checkbox"><span><strong>IMEI / серийный номер</strong><small>Сверь номер на устройстве с документами и данными в настройках.</small></span></label>
+            <label class="check-item"><input type="checkbox"><span><strong>Историю ремонта</strong><small>Уточни, что менялось и кто выполнял ремонт.</small></span></label>
+            <label class="check-item"><input type="checkbox"><span><strong>Реальную цену аналогов</strong><small>Сравни несколько похожих объявлений в таком же состоянии.</small></span></label>
           </div>
 
           <button id="saveResult" class="secondary-btn">♡ Сохранить в избранное</button>
@@ -184,6 +184,12 @@
       <section id="saved" class="screen">
         <div class="page-title">
           <div><h2>Избранное</h2><p>Товары, которые ты сохранил</p></div>
+          <button id="savedSelectMode" class="text-btn">Выбрать</button>
+        </div>
+        <div id="savedToolbar" class="selection-toolbar hidden">
+          <button id="savedSelectAll" class="tool-btn">Выбрать все</button>
+          <button id="savedDeleteSelected" class="tool-btn danger">Удалить выбранные</button>
+          <button id="savedCancelSelect" class="tool-btn">Отмена</button>
         </div>
         <div id="savedList"></div>
       </section>
@@ -192,7 +198,12 @@
       <section id="history" class="screen">
         <div class="page-title">
           <div><h2>История</h2><p>Последние проверки</p></div>
-          <button id="clearHistory" class="text-btn">Очистить</button>
+          <div class="page-actions"><button id="historySelectMode" class="text-btn">Выбрать</button><button id="clearHistory" class="text-btn">Очистить</button></div>
+        </div>
+        <div id="historyToolbar" class="selection-toolbar hidden">
+          <button id="historySelectAll" class="tool-btn">Выбрать все</button>
+          <button id="historyDeleteSelected" class="tool-btn danger">Удалить выбранные</button>
+          <button id="historyCancelSelect" class="tool-btn">Отмена</button>
         </div>
         <div id="historyList"></div>
       </section>
@@ -206,7 +217,7 @@
           <div class="stat card"><span>Проверок</span><b id="checks">0</b><small>за всё время</small></div>
           <div class="stat card"><span>Избранных</span><b id="savedCount">0</b><small>товаров</small></div>
           <div class="stat card"><span>История</span><b id="historyCount">0</b><small>результатов</small></div>
-          <div class="stat card"><span>Версия</span><b>1.0</b><small>FLIP Lite</small></div>
+          <div class="stat card"><span>Версия</span><b>1.2</b><small>FLIP Lite</small></div>
         </div>
 
         <div class="profile-card card">

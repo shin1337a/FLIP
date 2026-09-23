@@ -2,7 +2,10 @@ const state = {
   checks: Number(localStorage.getItem("flipChecks") || 0),
   saved: JSON.parse(localStorage.getItem("flipSaved") || "[]"),
   history: JSON.parse(localStorage.getItem("flipHistory") || "[]"),
-  current: null
+  current: null,
+  selectMode: {saved:false, history:false},
+  selectedSaved: new Set(),
+  selectedHistory: new Set()
 };
 
 const $ = id => document.getElementById(id);
@@ -44,35 +47,64 @@ function renderSaved(){
   const box = $("savedList");
   if(!state.saved.length){
     box.innerHTML = `<div class="card empty">♡<br><br>Здесь пока пусто.<br>Сохраняй интересные товары из результатов.</div>`;
-    return;
+    updateSelectionUI(); return;
   }
-
   box.innerHTML = state.saved.map((name, i) => `
-    <div class="saved-item card">
-      <div class="item-icon">📱</div>
-      <div class="item-main"><b>${escapeHtml(name)}</b><span>Сохранено в FLIP</span></div>
-      <button class="delete-btn" data-delete-save="${i}">×</button>
-    </div>
-  `).join("");
+    <div class="saved-item card selectable-item swipe-delete ${state.selectedSaved.has(i) ? "selected" : ""}">
+      <div class="swipe-content">
+        ${state.selectMode.saved ? `<input class="selection-check" type="checkbox" data-select-save="${i}" ${state.selectedSaved.has(i) ? "checked" : ""}>` : ""}
+        <div class="item-icon">📱</div><div class="item-main"><b>${escapeHtml(name)}</b><span>Сохранено в FLIP</span></div>
+        ${state.selectMode.saved ? "" : `<button class="delete-btn" data-delete-save="${i}">×</button>`}
+      </div>
+      <button class="swipe-action" data-swipe-delete-save="${i}">Удалить</button>
+    </div>`).join("");
+  bindSwipe(box,"saved"); updateSelectionUI();
 }
 
 function renderHistory(){
   const box = $("historyList");
   if(!state.history.length){
     box.innerHTML = `<div class="card empty">↺<br><br>История пока пустая.<br>Сделай первую проверку.</div>`;
-    return;
+    updateSelectionUI(); return;
   }
-
   box.innerHTML = state.history.map((item, i) => `
-    <div class="history-item card">
-      <div class="item-icon">🔎</div>
-      <div class="item-main">
-        <b>${escapeHtml(item.product)}</b>
-        <span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · ${item.net >= 0 ? "+" : ""}${item.net} BYN</span>
+    <div class="history-item card selectable-item swipe-delete ${state.selectedHistory.has(i) ? "selected" : ""}">
+      <div class="swipe-content">
+        ${state.selectMode.history ? `<input class="selection-check" type="checkbox" data-select-history="${i}" ${state.selectedHistory.has(i) ? "checked" : ""}>` : ""}
+        <div class="item-icon">🔎</div><div class="item-main"><b>${escapeHtml(item.product)}</b><span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · ${item.net >= 0 ? "+" : ""}${item.net} BYN</span></div>
+        ${state.selectMode.history ? "" : `<button class="delete-btn" data-delete-history="${i}">×</button>`}
       </div>
-      <button class="delete-btn" data-delete-history="${i}">×</button>
-    </div>
-  `).join("");
+      <button class="swipe-action" data-swipe-delete-history="${i}">Удалить</button>
+    </div>`).join("");
+  bindSwipe(box,"history"); updateSelectionUI();
+}
+
+function updateSelectionUI(){
+  $("savedToolbar")?.classList.toggle("hidden",!state.selectMode.saved);
+  $("historyToolbar")?.classList.toggle("hidden",!state.selectMode.history);
+  if($("savedSelectAll")) $("savedSelectAll").textContent = state.saved.length && state.selectedSaved.size===state.saved.length ? "Снять всё" : "Выбрать все";
+  if($("historySelectAll")) $("historySelectAll").textContent = state.history.length && state.selectedHistory.size===state.history.length ? "Снять всё" : "Выбрать все";
+}
+function enterSelectMode(type){ state.selectMode[type]=true; type==="saved"?renderSaved():renderHistory(); }
+function exitSelectMode(type){ state.selectMode[type]=false; type==="saved"?(state.selectedSaved.clear(),renderSaved()):(state.selectedHistory.clear(),renderHistory()); }
+function toggleSelectAll(type){
+  const set=type==="saved"?state.selectedSaved:state.selectedHistory, len=type==="saved"?state.saved.length:state.history.length;
+  if(set.size===len)set.clear(); else {set.clear();for(let i=0;i<len;i++)set.add(i);}
+  type==="saved"?renderSaved():renderHistory();
+}
+function deleteSelected(type){
+  const set=type==="saved"?state.selectedSaved:state.selectedHistory;
+  if(!set.size){toast("Сначала выбери элементы");return;}
+  [...set].sort((a,b)=>b-a).forEach(i=>type==="saved"?state.saved.splice(i,1):state.history.splice(i,1));
+  set.clear(); state.selectMode[type]=false; persist(); type==="saved"?renderSaved():renderHistory(); toast("Выбранное удалено");
+}
+function bindSwipe(box,type){
+  box.querySelectorAll(".swipe-delete").forEach(card=>{
+    let sx=0,sy=0,moved=false;
+    card.addEventListener("touchstart",e=>{if(state.selectMode[type])return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false},{passive:true});
+    card.addEventListener("touchmove",e=>{if(state.selectMode[type])return;const t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy))moved=true},{passive:true});
+    card.addEventListener("touchend",e=>{if(state.selectMode[type]||!moved)return;const ex=e.changedTouches[0].clientX;if(sx-ex>45)card.classList.add("swiped");else if(ex-sx>25)card.classList.remove("swiped")},{passive:true});
+  });
 }
 
 function escapeHtml(value){
@@ -297,6 +329,14 @@ document.querySelectorAll("[data-show]").forEach(btn => {
 });
 
 document.addEventListener("click", e => {
+  const selectSave=e.target.closest("[data-select-save]");
+  if(selectSave){const i=Number(selectSave.dataset.selectSave);selectSave.checked?state.selectedSaved.add(i):state.selectedSaved.delete(i);selectSave.closest(".selectable-item")?.classList.toggle("selected",selectSave.checked);updateSelectionUI();return;}
+  const selectHistory=e.target.closest("[data-select-history]");
+  if(selectHistory){const i=Number(selectHistory.dataset.selectHistory);selectHistory.checked?state.selectedHistory.add(i):state.selectedHistory.delete(i);selectHistory.closest(".selectable-item")?.classList.toggle("selected",selectHistory.checked);updateSelectionUI();return;}
+  const swipeSave=e.target.closest("[data-swipe-delete-save]");
+  if(swipeSave){state.saved.splice(Number(swipeSave.dataset.swipeDeleteSave),1);persist();renderSaved();toast("Удалено");return;}
+  const swipeHistory=e.target.closest("[data-swipe-delete-history]");
+  if(swipeHistory){state.history.splice(Number(swipeHistory.dataset.swipeDeleteHistory),1);persist();renderHistory();toast("Удалено");return;}
   const saveBtn = e.target.closest("[data-save]");
   if(saveBtn) toggleDemoSave(saveBtn);
 
@@ -312,6 +352,15 @@ document.addEventListener("click", e => {
     persist(); renderHistory(); toast("Удалено");
   }
 });
+
+$("savedSelectMode").addEventListener("click",()=>state.selectMode.saved?exitSelectMode("saved"):enterSelectMode("saved"));
+$("savedSelectAll").addEventListener("click",()=>toggleSelectAll("saved"));
+$("savedDeleteSelected").addEventListener("click",()=>deleteSelected("saved"));
+$("savedCancelSelect").addEventListener("click",()=>exitSelectMode("saved"));
+$("historySelectMode").addEventListener("click",()=>state.selectMode.history?exitSelectMode("history"):enterSelectMode("history"));
+$("historySelectAll").addEventListener("click",()=>toggleSelectAll("history"));
+$("historyDeleteSelected").addEventListener("click",()=>deleteSelected("history"));
+$("historyCancelSelect").addEventListener("click",()=>exitSelectMode("history"));
 
 $("saveResult").addEventListener("click", saveCurrent);
 $("resultHeart").addEventListener("click", saveCurrent);
@@ -345,6 +394,8 @@ document.querySelectorAll(".condition").forEach(btn => {
     }
   });
 });
+
+document.querySelectorAll(".check-item input").forEach((box,i)=>{const key=`flipCheck_${i}`;box.checked=localStorage.getItem(key)==="1";box.addEventListener("change",()=>localStorage.setItem(key,box.checked?"1":"0"));});
 
 updateStats();
 renderSaved();
