@@ -22,7 +22,7 @@ button:active{transform:scale(.98)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 3px 12px rgba(0,0,0,.025)}
 .scanner{margin:0 16px 22px;padding:16px}.scanner label{display:block;font-size:12px;font-weight:750;margin-bottom:9px}
 .input-wrap{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fafafc;border-radius:14px;padding:0 12px;height:50px}.input-wrap span{font-size:16px}.input{width:100%}
-.input-wrap input{width:100%;border:0;outline:0;background:transparent;font-size:14px;min-width:0}.icon-btn{border:0;background:var(--soft);border-radius:50%;width:25px;height:25px;line-height:20px;font-size:18px}.hidden{display:none!important}
+.input-wrap input{width:100%;border:0;outline:0;background:transparent;font-size:16px;min-width:0}.icon-btn{border:0;background:var(--soft);border-radius:50%;width:25px;height:25px;line-height:20px;font-size:18px}.hidden{display:none!important}
 .primary-btn,.secondary-btn{width:100%;border:0;border-radius:15px;padding:15px;font-weight:800;margin-top:10px}.primary-btn{background:var(--dark);color:#fff}.secondary-btn{background:var(--soft);color:var(--text)}
 .btn-icon{font-size:18px;vertical-align:-1px}.supported{font-size:10px;color:var(--muted);line-height:1.4;margin-top:9px}.supported span{font-weight:800;color:#555}
 .steps{padding:0 16px 16px;display:grid;gap:9px}.step{display:flex;gap:12px;padding:14px}.step-num{font-size:11px;font-weight:900;background:var(--dark);color:#fff;border-radius:10px;min-width:34px;height:34px;display:grid;place-items:center}.step b{font-size:13px}.step p{margin:4px 0 0;color:var(--muted);font-size:11px;line-height:1.35}
@@ -49,8 +49,11 @@ button:active{transform:scale(.98)}
 .link-btn{display:block;width:100%;border:0;background:none;color:#555;font-size:11px;font-weight:750;padding:12px 4px 4px}
 .advanced-form{margin-top:10px;padding:13px;border-radius:15px;background:#f7f7f8;border:1px solid var(--line)}
 .form-title{font-size:12px;font-weight:850;margin-bottom:10px}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.advanced-form label{font-size:9px;color:var(--muted);font-weight:700}.money-input{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;height:42px;padding:0 9px;margin-top:5px}.money-input input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:13px}.money-input span{font-size:9px;color:var(--muted)}
+.advanced-form label{font-size:9px;color:var(--muted);font-weight:700}.money-input{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:11px;height:42px;padding:0 9px;margin-top:5px}.money-input input{width:100%;min-width:0;border:0;outline:0;background:transparent;font-size:16px}.money-input span{font-size:9px;color:var(--muted)}
 .full-label{display:block;margin-top:9px}.condition-row{margin-top:10px}.condition-row>span{font-size:9px;color:var(--muted);font-weight:700}.condition-buttons{display:flex;gap:5px;margin-top:5px}.condition{flex:1;border:0;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 4px;font-size:9px;color:#777}.condition.active{background:#111;color:#fff;border-color:#111}
 .calc-note{font-size:10px;color:var(--muted);line-height:1.4;margin-top:9px}
 
-.analogs-title{font-size:9px;color:var(--muted);font-weight:700;margin-top:11px}.analogs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:5px}.analogs-grid input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:#fff;outline:0;padding:0 6px;font-size:11px;text-align:center}.metric small{display:block;font-size:8px;color:var(--muted);margin-top:4px}.confidence-card{padding:15px;margin-top:10px}.confidence-card p{font-size:11px;line-height:1.4;color:var(--muted);margin:9px 0 0}
+.analogs-title{font-size:9px;color:var(--muted);font-weight:700;margin-top:11px}.analogs-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:5px}.analogs-grid input{width:100%;height:38px;border:1px solid var(--line);border-radius:9px;background:#fff;outline:0;padding:0 6px;font-size:16px;text-align:center}.metric small{display:block;font-size:8px;color:var(--muted);margin-top:4px}.confidence-card{padding:15px;margin-top:10px}.confidence-card p{font-size:11px;line-height:1.4;color:var(--muted);margin:9px 0 0}
+
+.result-actions{display:flex;align-items:center;gap:7px}
+.result-heart{flex:0 0 auto;margin:0;width:42px;height:42px}

@@ -104,19 +104,28 @@ function getAnalogPrices(){
 }
 
 function makeAnalysis(url){
-  const domain = domainFromUrl(url);
-  const buy = Number($("buyInput").value || 1250);
+  const cleanUrl = url.trim();
+  const domain = cleanUrl ? domainFromUrl(cleanUrl) : "ручной расчёт";
+  const buy = Number($("buyInput").value || 0);
   const manualSell = Number($("sellInput").value || 0);
   const analogs = getAnalogPrices();
-  const defaultAnalogs = [1450,1490,1550,1590,1620];
-  const marketSamples = analogs.length ? analogs : defaultAnalogs;
-  const marketFromAnalogs = median(marketSamples);
+  const marketFromAnalogs = median(analogs);
   const market = manualSell > 0 ? manualSell : marketFromAnalogs;
   const feePercent = Math.max(0, Math.min(100, Number($("feeInput").value || 5)));
   const condition = document.querySelector(".condition.active")?.dataset.condition || "good";
 
-  if(buy <= 0 || market <= 0){
-    toast("Укажи цену покупки больше 0");
+  if(buy <= 0){
+    toast("Укажи цену покупки");
+    return null;
+  }
+
+  if(manualSell <= 0 && analogs.length < 3){
+    toast("Укажи цену продажи или минимум 3 аналога");
+    return null;
+  }
+
+  if(market <= 0){
+    toast("Не хватает данных для расчёта");
     return null;
   }
 
@@ -137,21 +146,22 @@ function makeAnalysis(url){
   else if(score < 50) label = "Осторожно";
 
   const count = analogs.length;
-  const spread = marketSamples.length > 1 ? Math.max(...marketSamples) - Math.min(...marketSamples) : 0;
+  const spread = analogs.length > 1 ? Math.max(...analogs) - Math.min(...analogs) : 0;
   let confidence = "Низкая", confidenceClass = "high";
-  if(count >= 5 && spread / market < 0.18){ confidence = "Высокая"; confidenceClass = "low"; }
+  if(count >= 5 && market > 0 && spread / market < 0.18){ confidence = "Высокая"; confidenceClass = "low"; }
   else if(count >= 3){ confidence = "Средняя"; confidenceClass = "medium"; }
 
-  const confidenceText = count === 0
-    ? "Использованы примерные цены. Добавь свои аналоги для реальной оценки."
+  const confidenceText = manualSell > 0 && count === 0
+    ? "Цена продажи указана вручную. Добавь аналоги, если хочешь сравнить её с рынком."
     : count < 3
-      ? `Сейчас учтено ${count} аналог${count === 1 ? '' : 'а'}. Добавь ещё, чтобы уменьшить погрешность.`
+      ? "Добавь минимум 3 похожих объявления для оценки рынка."
       : `Учтено ${count} аналогов. Медиана снижает влияние слишком дорогих и дешёвых объявлений.`;
 
   return {
     product:"Товар из объявления", domain, buy, market, gross, fee, net, feePercent,
-    score, risk, riskClass, condition, label, manualSell: manualSell > 0, analogs: marketSamples, analogCount: count,
+    score, risk, riskClass, condition, label, manualSell: manualSell > 0, analogs, analogCount: count,
     confidence, confidenceClass, confidenceText,
+    url: cleanUrl,
     riskText: condition === "bad"
       ? "Состояние заметно повышает риск. Сначала проверь дефекты и реальную цену продажи."
       : net > 0
@@ -164,33 +174,32 @@ function runCheck(){
   const input = $("url");
   const value = input.value.trim();
 
-  if(!value){
-    toast("Вставь ссылку на объявление");
-    input.focus();
-    return;
+  if(value){
+    try{
+      new URL(value);
+    }catch{
+      toast("Похоже, это не ссылка");
+      return;
+    }
   }
 
-  try{
-    new URL(value);
-  }catch{
-    toast("Похоже, это не ссылка");
-    return;
-  }
+  const analysis = makeAnalysis(value);
+  if(!analysis) return;
 
   state.checks++;
-  state.current = makeAnalysis(value);
-  if(!state.current) return;
+  state.current = analysis;
   $("saveResult").textContent = "♡ Сохранить в избранное";
-  const r = state.current;
 
-  $("resultSource").textContent = `${r.domain} · демонстрационный расчёт`;
+  const r = state.current;
+  $("resultSource").textContent = value
+    ? `${r.domain} · предварительный расчёт`
+    : "Ручной расчёт · без ссылки";
   $("resultProduct").textContent = r.product;
   $("buyPrice").textContent = `${r.buy.toLocaleString("ru-RU")} BYN`;
   $("marketPrice").textContent = `${r.market.toLocaleString("ru-RU")} BYN`;
-  $("marketMeta").textContent = r.manualSell ? "введено вручную" : `по ${r.analogCount || 5} аналогам`;
-  $("gross").textContent = `+${r.gross.toLocaleString("ru-RU")} BYN`;
+  $("marketMeta").textContent = r.manualSell ? "введено вручную" : `по ${r.analogCount} аналогам`;
+  $("gross").textContent = `${r.gross >= 0 ? "+" : ""}${r.gross.toLocaleString("ru-RU")} BYN`;
   $("net").textContent = `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN`;
-  $("riskText").textContent = `${r.riskText} Расходы: ${r.feePercent}% (${r.fee.toLocaleString("ru-RU")} BYN).`;
   $("score").textContent = r.score;
   $("scoreLabel").textContent = r.label;
   $("riskBadge").textContent = r.risk;
@@ -227,14 +236,22 @@ function saveCurrent(){
   if(!state.current) return;
   const name = state.current.product;
   if(state.saved.includes(name)){
-    toast("Уже в избранном");
+    state.saved = state.saved.filter(x => x !== name);
+    $("saveResult").textContent = "♡ Сохранить в избранное";
+    $("resultHeart").classList.remove("saved");
+    $("resultHeart").textContent = "♡";
+    persist();
+    renderSaved();
+    toast("Удалено из избранного");
     return;
   }
   state.saved.unshift(name);
+  $("saveResult").textContent = "✓ Сохранено в избранном";
+  $("resultHeart").classList.add("saved");
+  $("resultHeart").textContent = "♥";
   persist();
   renderSaved();
   toast("Добавлено в избранное ❤️");
-  $("saveResult").textContent = "✓ Сохранено в избранном";
 }
 
 function toggleDemoSave(button){
@@ -297,6 +314,7 @@ document.addEventListener("click", e => {
 });
 
 $("saveResult").addEventListener("click", saveCurrent);
+$("resultHeart").addEventListener("click", saveCurrent);
 $("clearHistory").addEventListener("click", () => {
   if(!state.history.length){ toast("История уже пустая"); return; }
   state.history = [];
