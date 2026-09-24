@@ -538,6 +538,30 @@ $("clearUrl").addEventListener("click", () => {
   $("url").focus();
 });
 
+const buyPhotoInput=$("buyPhotoInput");
+const buyPhotoPreview=$("buyPhotoPreview");
+buyPhotoInput?.addEventListener("change",()=>{
+  const file=buyPhotoInput.files?.[0];
+  if(!file){buyPhotoPreview?.classList.add("hidden");return;}
+  const url=URL.createObjectURL(file);
+  buyPhotoPreview.innerHTML=`<img src="${url}" alt="Фото объявления"><button type="button" class="mini-remove" id="removeBuyPhoto">×</button>`;
+  buyPhotoPreview.classList.remove("hidden");
+  $("removeBuyPhoto")?.addEventListener("click",()=>{buyPhotoInput.value="";buyPhotoPreview.classList.add("hidden");buyPhotoPreview.innerHTML="";});
+});
+$("buyStartCheck")?.addEventListener("click",()=>{
+  const value=$("buyUrlInput")?.value.trim() || "";
+  if(value){
+    $("url").value=value;
+    $("clearUrl").classList.remove("hidden");
+    showScreen("home");
+    setTimeout(runCheck,120);
+  }else if(buyPhotoInput?.files?.length){
+    toast("Фото добавлено — ссылка нужна для полной проверки");
+  }else{
+    toast("Добавь ссылку или фото объявления");
+  }
+});
+
 document.querySelectorAll(".nav").forEach(btn => {
   btn.addEventListener("click", () => {
     showScreen(btn.dataset.nav);
@@ -633,16 +657,15 @@ function openInfo(type){
     const makeReport=()=>{
       const text=$("supportText")?.value?.trim() || "Без описания";
       const screen=document.querySelector(".screen.active")?.id || "home";
-      return `FLIP — обращение в поддержку\nВерсия: 1.6.1\nЭкран: ${screen}\nСсылка: ${location.href}\n\nПроблема/идея: ${text}`;
+      const photo=$("supportPhotoInput")?.files?.[0];
+      return `FLIP — обращение в поддержку\nВерсия: 1.7\nЭкран: ${screen}\nСсылка: ${location.href}\nФото: ${photo ? photo.name : "нет"}\n\nПроблема/идея: ${text}`;
     };
-    content.querySelector("#supportCopy")?.addEventListener("click", async()=>{
-      try{ await navigator.clipboard.writeText(makeReport()); toast("Обращение скопировано"); }
-      catch{ toast("Не удалось скопировать обращение"); }
-    });
+    const supportPhotoInput=$("supportPhotoInput"), supportPhotoName=$("supportPhotoName");
+    supportPhotoInput?.addEventListener("change",()=>{ const f=supportPhotoInput.files?.[0]; if(supportPhotoName) supportPhotoName.textContent=f?f.name:"Фото не добавлено"; });
     content.querySelector("#supportTelegram")?.addEventListener("click",()=>{
       const report=makeReport();
       if(SUPPORT_USERNAME){
-        const chatUrl=`https://t.me/${SUPPORT_USERNAME}`;
+        const chatUrl=`https://t.me/${SUPPORT_USERNAME}?text=${encodeURIComponent(report)}`;
         try{
           if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(chatUrl); }
           else{ window.open(chatUrl,"_blank"); }
@@ -650,10 +673,7 @@ function openInfo(type){
         return;
       }
       const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(report)}`;
-      try{
-        if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(shareUrl); }
-        else{ window.open(shareUrl,"_blank"); }
-      }catch{ window.open(shareUrl,"_blank"); }
+      try{ if(window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(shareUrl); else window.open(shareUrl,"_blank"); }catch{ window.open(shareUrl,"_blank"); }
     });
   }
   sheet.classList.remove("hidden"); sheet.setAttribute("aria-hidden","false");
@@ -670,6 +690,12 @@ if(themeSelect){
   const savedTheme=localStorage.getItem("flipTheme") || "system";
   applyTheme(savedTheme);
   themeSelect.addEventListener("change",()=>applyTheme(themeSelect.value));
+}
+const themeToggle=$("themeToggle");
+if(themeToggle){
+  const syncThemeToggle=()=>{ const current=document.documentElement.dataset.theme || "light"; themeToggle.classList.toggle("is-dark",current==="dark"); };
+  syncThemeToggle();
+  themeToggle.addEventListener("click",()=>{ const next=(document.documentElement.dataset.theme==="dark")?"light":"dark"; applyTheme(next); syncThemeToggle(); });
 }
 if(window.matchMedia){
   const media=window.matchMedia("(prefers-color-scheme: dark)");

@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0d">
   <title>FLIP — поиск возможностей</title>
-  <link rel="stylesheet" href="style.css?v=1.6.1">
+  <link rel="stylesheet" href="style.css?v=1.7">
 </head>
 <body>
   <div class="app">
@@ -35,10 +35,10 @@
 
         <div class="section-head compact"><div><div class="section-title">Что умеет FLIP</div><div class="section-sub">Один помощник вместо нескольких мелких инструментов.</div></div></div>
         <div class="feature-list">
-          <button class="feature card feature-btn" type="button" data-show="buy"><span>🔎</span><div><b>Оценка покупки</b><p>Цена, аналоги, расходы и основные риски.</p></div></button>
-          <button class="feature card feature-btn" type="button" data-show="deal"><span>📋</span><div><b>Чек-лист встречи</b><p>Не забудь проверить главное до оплаты.</p></div></button>
-          <button class="feature card feature-btn" type="button" data-show="sell"><span>📸</span><div><b>Помощь с объявлением</b><p>Фото + данные о вещи → заготовка объявления.</p></div></button>
-          <button class="feature card feature-btn" type="button" data-show="sell"><span>💬</span><div><b>Ответы покупателям</b><p>Готовые варианты для вопросов и торга.</p></div></button>
+          <div class="feature card"><span>🔎</span><div><b>Оценка покупки</b><p>Цена, аналоги, расходы и основные риски.</p></div></div>
+          <div class="feature card"><span>📋</span><div><b>Чек-лист встречи</b><p>Не забудь проверить главное до оплаты.</p></div></div>
+          <div class="feature card"><span>📸</span><div><b>Помощь с объявлением</b><p>Фото + данные о вещи → заготовка объявления.</p></div></div>
+          <div class="feature card"><span>💬</span><div><b>Ответы покупателям</b><p>Готовые варианты для вопросов и торга.</p></div></div>
         </div>
 
         <div class="section-head compact"><div><div class="section-title">Быстрый расчёт</div><div class="section-sub">Старый инструмент FLIP никуда не делся.</div></div></div>
@@ -66,7 +66,19 @@
       <!-- BUY -->
       <section id="buy" class="screen">
         <div class="page-title"><button class="back-btn" data-show="home">←</button><div><h2>Хочу купить</h2><p>Проверь вещь до того, как отдашь деньги</p></div></div>
-        <div class="card buy-intro"><b>Скинь ссылку или скрин объявления</b><p>Сейчас ссылка используется как контекст, а расчёт можно дополнить ценами вручную. Автоматический AI-анализ подключим следующим этапом.</p></div>
+        <div class="card buy-panel">
+          <div class="panel-kicker">ПРОВЕРКА ОБЪЯВЛЕНИЯ</div>
+          <h3>Ссылка или фото — отправь сюда</h3>
+          <p>FLIP соберёт всё в одной проверке. Автоматический разбор площадок подключим следующим этапом.</p>
+          <label class="field-label" for="buyUrlInput">Ссылка на объявление</label>
+          <div class="input-wrap buy-link-wrap"><span>🔗</span><input id="buyUrlInput" type="url" inputmode="url" autocomplete="off" placeholder="https://kufar.by/..." /></div>
+          <div class="buy-photo-row">
+            <input id="buyPhotoInput" type="file" accept="image/*" class="file-input">
+            <label for="buyPhotoInput" class="photo-add-btn"><span>＋</span><div><b>Добавить фото</b><small>Скрин объявления или товара</small></div></label>
+            <div id="buyPhotoPreview" class="buy-photo-preview hidden"></div>
+          </div>
+          <button id="buyStartCheck" class="primary-btn" type="button">Проверить объявление</button>
+        </div>
         <div class="quick-actions"><button class="action-tile" data-show="home"><span>🔗</span><b>Вставить ссылку</b><small>Перейти к расчёту</small></button><button class="action-tile" data-show="deal"><span>🛡️</span><b>Проверить перед встречей</b><small>Открыть чек-лист</small></button></div>
         <div class="section-title result-title">Что проверить</div>
         <div class="checklist card"><label class="check-item"><input type="checkbox"><span><strong>Цена и аналоги</strong><small>Сравни минимум 3 похожих предложения в таком же состоянии.</small></span></label><label class="check-item"><input type="checkbox"><span><strong>Состояние</strong><small>Попроси фото дефектов и уточни, были ли ремонты.</small></span></label><label class="check-item"><input type="checkbox"><span><strong>Продавец</strong><small>Посмотри профиль, отзывы и не переходи по подозрительным ссылкам.</small></span></label><label class="check-item"><input type="checkbox"><span><strong>Условия сделки</strong><small>Не отправляй предоплату только потому, что тебя торопят.</small></span></label></div>
@@ -75,7 +87,7 @@
       <!-- SELL -->
       <section id="sell" class="screen">
         <div class="page-title"><button class="back-btn" data-show="home">←</button><div><h2>Хочу продать</h2><p>Собери объявление быстрее</p></div></div>
-        <div class="card photo-box"><div class="photo-placeholder" id="photoPreview">📸</div><div><b>Добавь фото вещи</b><p>В этой версии FLIP покажет фото и подготовит текст. Распознавание предмета через AI подключим позже.</p></div><input id="photoInput" type="file" accept="image/*" class="file-input"><label for="photoInput" class="secondary-btn inline-btn">Выбрать фото</label></div>
+        <div class="card photo-box sell-panel"><div class="panel-kicker">ПРОДАЖА</div><div class="photo-placeholder" id="photoPreview">📸</div><div><b>Добавь фото вещи</b><p>В этой версии FLIP покажет фото и подготовит текст. Распознавание предмета через AI подключим позже.</p></div><input id="photoInput" type="file" accept="image/*" class="file-input"><label for="photoInput" class="secondary-btn inline-btn">Выбрать фото</label></div>
         <div class="form-card card"><label>Что продаёшь<input id="sellTitle" class="text-input" placeholder="Например: iPhone 13 128GB"></label><label>Желаемая цена<input id="sellPrice" class="text-input" type="number" placeholder="1000"></label><label>Состояние<select id="sellCondition" class="text-input"><option>Хорошее</option><option>Среднее</option><option>Отличное</option><option>Есть дефекты</option></select></label><label>Что важно указать<textarea id="sellDetails" class="text-input textarea" placeholder="Комплект, аккумулятор, ремонт, дефекты..."></textarea></label><button id="generateListing" class="primary-btn">✨ Подготовить объявление</button></div>
         <div id="listingResult" class="card hidden"></div>
         <div class="section-title result-title">Ответы покупателям</div>
@@ -85,8 +97,8 @@
 
       <!-- DEAL -->
       <section id="deal" class="screen">
-        <div class="page-title"><button class="back-btn" data-show="home">←</button><div><h2>Безопасная сделка</h2><p>Открой перед встречей и пройди по пунктам</p></div></div>
-        <div class="deal-warning card"><b>Не торопись передавать деньги.</b><p>Если продавец давит, требует странную предоплату или присылает подозрительную ссылку — остановись и проверь всё ещё раз.</p></div>
+        <div class="page-title"><button class="back-btn" data-show="home">←</button><div><h2>У меня сделка</h2><p>Открой перед встречей и пройди по пунктам</p></div></div>
+        <div class="deal-warning card deal-panel"><div class="panel-kicker">СДЕЛКА</div><b>Не торопись передавать деньги.</b><p>Если продавец давит, требует странную предоплату или присылает подозрительную ссылку — остановись и проверь всё ещё раз.</p></div>
         <div class="deal-steps card">
           <label class="deal-step check-item"><input type="checkbox"><span class="deal-num">1</span><div><b>До встречи</b><small>Уточни состояние, комплект, документы и историю ремонта.</small></div></label>
           <label class="deal-step check-item"><input type="checkbox"><span class="deal-num">2</span><div><b>На месте</b><small>Проверь устройство/вещь, серийный номер, основные функции и дефекты.</small></div></label>
@@ -214,7 +226,7 @@
           <div class="stat card"><span>Проверок</span><b id="checks">0</b><small>за всё время</small></div>
           <div class="stat card"><span>Избранных</span><b id="savedCount">0</b><small>товаров</small></div>
           <div class="stat card"><span>История</span><b id="historyCount">0</b><small>результатов</small></div>
-          <div class="stat card"><span>Версия</span><b>1.6.1</b><small>FLIP Assistant</small></div>
+          <div class="stat card"><span>Версия</span><b>1.7</b><small>FLIP Assistant</small></div>
         </div>
 
         <div class="profile-welcome card" id="profileWelcome">
@@ -228,7 +240,7 @@
         </div>
 
         <div class="profile-settings card">
-          <div class="profile-setting-row"><div><b>Оформление</b><small>Подстраивать тему под устройство</small></div><select id="themeSelect" aria-label="Оформление"><option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Тёмная</option></select></div>
+          <div class="profile-setting-row"><div><b>Оформление</b><small>Переключай тему одним нажатием</small></div><button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить тему"><span>☀️</span><i></i><span>🌙</span></button><select id="themeSelect" class="theme-select-hidden" aria-label="Оформление"><option value="system">Системная</option><option value="light">Светлая</option><option value="dark">Тёмная</option></select></div>
         </div>
 
         <div class="roadmap card">
@@ -272,6 +284,6 @@
     <div id="toast" class="toast"><span id="toastMessage"></span><button id="toastAction" type="button" class="hidden">Вернуть</button></div>
   </div>
 
-  <script src="app.js?v=1.6.1"></script>
+  <script src="app.js?v=1.7"></script>
 </body>
 </html>
