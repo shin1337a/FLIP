@@ -14,6 +14,8 @@ const $ = id => document.getElementById(id);
 // Set this after creating the separate FLIP support Telegram account.
 // Example: "FLIP_support" (without the @). Until then, the share flow remains available.
 const SUPPORT_USERNAME = "flip_support1";
+// Leave empty until a real FLIP backend is connected. Never put a Telegram bot token here.
+const SUPPORT_ENDPOINT = "";
 
 function persist(){
   localStorage.setItem("flipChecks", state.checks);
@@ -652,28 +654,45 @@ function openInfo(type){
   if(!sheet || !content) return;
   if(type === "about"){
     content.innerHTML = `<div class="info-kicker">О FLIP</div><h3>Помощник для б/у покупок и продаж</h3><p>FLIP помогает проверить объявление, подготовиться к встрече, собрать объявление и не забыть важные шаги сделки.</p><div class="info-list"><div>🛒 Покупка — цена, риски и чек-лист.</div><div>📦 Продажа — текст объявления и ответы.</div><div>🛡️ Сделка — пошаговая проверка перед оплатой.</div></div>`;
+  }else if(type === "trust"){
+    content.innerHTML = `<div class="info-kicker">О БЕЗОПАСНОСТИ FLIP</div><h3>FLIP — сервис, которому можно доверять</h3><p>Мы создаём FLIP как безопасного помощника для покупок и продаж. Сервис не должен просить у тебя пароль Telegram, коды входа или данные банковской карты.</p><div class="info-list"><div>🔒 <b>Без лишних секретных данных.</b> FLIP не просит пароль Telegram или код подтверждения.</div><div>🧠 <b>Честные подсказки.</b> Мы показываем проверяемую информацию и прямо говорим, когда чего-то не можем подтвердить.</div><div>🛡️ <b>Фокус на безопасности.</b> FLIP помогает заметить подозрительные моменты и не забыть важные проверки.</div><div>🤝 <b>Прозрачность.</b> Мы не обещаем невозможного и не выдаём подсказки за гарантию того, что продавец или товар безопасны.</div></div><p class="info-note">Доверие к FLIP строится на понятных правилах: не просить лишние секретные данные, не скрывать ограничения сервиса и помогать пользователю принимать решение осознанно.</p>`;
   }else{
-    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Напиши баг, предложение или вопрос прямо здесь и при необходимости прикрепи фото.</p><textarea id="supportText" class="support-textarea" placeholder="Напиши здесь ошибку, баг, предложение или идею..." aria-label="Описание проблемы"></textarea><div class="support-photo-row"><input id="supportPhotoInput" type="file" accept="image/*" class="file-input"><label for="supportPhotoInput" class="support-photo-btn"><span>＋</span><div><b>Прикрепить фото</b><small id="supportPhotoName">Скриншот или фото проблемы</small></div></label><div id="supportPhotoPreview" class="support-photo-preview hidden"></div></div><div class="support-actions"><button class="primary-btn" id="supportTelegram" type="button">Отправить в поддержку</button></div><div class="support-meta">Текст автоматически подставится в чат поддержки FLIP. Для полностью автоматической отправки текста и фото без дополнительного нажатия Telegram понадобится подключённый бот/backend.</div>`;
+    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Напиши сообщение прямо в FLIP и при необходимости прикрепи фото. Нажми одну кнопку — FLIP подготовит обращение для поддержки.</p><textarea id="supportText" class="support-textarea" placeholder="Напиши здесь ошибку, баг, предложение или идею..." aria-label="Описание проблемы"></textarea><div class="support-photo-row"><input id="supportPhotoInput" type="file" accept="image/*" class="file-input"><label for="supportPhotoInput" class="support-photo-btn"><span>＋</span><div><b>Прикрепить фото</b><small id="supportPhotoName">Скриншот или фото проблемы</small></div></label><div id="supportPhotoPreview" class="support-photo-preview hidden"></div></div><div class="support-actions"><button class="primary-btn" id="supportTelegram" type="button">Отправить в поддержку</button></div><div class="support-meta" id="supportMeta">Текст и фото должны отправляться напрямую через сервер FLIP. Пока серверная отправка не подключена, Telegram откроет чат поддержки с готовым текстом.</div>`;
     const makeReport=()=>{
       const text=$("supportText")?.value?.trim() || "Без описания";
       const screen=document.querySelector(".screen.active")?.id || "home";
       const photo=$("supportPhotoInput")?.files?.[0];
-      return `FLIP — обращение в поддержку\nВерсия: 1.7\nЭкран: ${screen}\nСсылка: ${location.href}\nФото: ${photo ? photo.name : "нет"}\n\nПроблема/идея: ${text}`;
+      return { text, screen, photo, report: `FLIP — обращение в поддержку\nВерсия: 1.8\nЭкран: ${screen}\nСсылка: ${location.href}\nФото: ${photo ? photo.name : "нет"}\n\nПроблема/идея: ${text}` };
     };
-    const supportPhotoInput=$("supportPhotoInput"), supportPhotoName=$("supportPhotoName"), supportPhotoPreview=$("supportPhotoPreview");
+    const supportPhotoInput=$("supportPhotoInput"), supportPhotoName=$("supportPhotoName"), supportPhotoPreview=$("supportPhotoPreview"), supportBtn=$("supportTelegram"), supportMeta=$("supportMeta");
     supportPhotoInput?.addEventListener("change",()=>{ const f=supportPhotoInput.files?.[0]; if(supportPhotoName) supportPhotoName.textContent=f?f.name:"Скриншот или фото проблемы"; if(supportPhotoPreview){ if(f){ const url=URL.createObjectURL(f); supportPhotoPreview.innerHTML=`<img src="${url}" alt="Прикреплённое фото">`; supportPhotoPreview.classList.remove("hidden"); } else { supportPhotoPreview.innerHTML=""; supportPhotoPreview.classList.add("hidden"); } } });
-    content.querySelector("#supportTelegram")?.addEventListener("click",()=>{
-      const report=makeReport();
-      if(SUPPORT_USERNAME){
-        const chatUrl=`https://t.me/${SUPPORT_USERNAME}?text=${encodeURIComponent(report)}`;
-        try{
-          if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(chatUrl); }
-          else{ window.open(chatUrl,"_blank"); }
-        }catch{ window.open(chatUrl,"_blank"); }
-        return;
+    supportBtn?.addEventListener("click", async()=>{
+      const {text, screen, photo, report}=makeReport();
+      supportBtn.disabled=true;
+      supportBtn.textContent="Отправляем…";
+      try{
+        if(SUPPORT_ENDPOINT){
+          const fd=new FormData();
+          fd.append("text",text); fd.append("screen",screen); fd.append("url",location.href); fd.append("version","1.8");
+          if(photo) fd.append("photo",photo,photo.name);
+          const res=await fetch(SUPPORT_ENDPOINT,{method:"POST",body:fd});
+          if(!res.ok) throw new Error("support endpoint failed");
+          supportBtn.textContent="Отправлено ✓";
+          if(supportMeta) supportMeta.textContent="Обращение отправлено в поддержку FLIP.";
+          return;
+        }
+        if(SUPPORT_USERNAME){
+          const chatUrl=`https://t.me/${SUPPORT_USERNAME}?text=${encodeURIComponent(report)}`;
+          if(window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(chatUrl); else window.open(chatUrl,"_blank");
+        }else{
+          const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(report)}`;
+          if(window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(shareUrl); else window.open(shareUrl,"_blank");
+        }
+      }catch(e){
+        if(supportMeta) supportMeta.textContent="Не удалось отправить автоматически. Проверь интернет и попробуй ещё раз.";
+      }finally{
+        if(supportBtn.textContent==="Отправляем…") { supportBtn.disabled=false; supportBtn.textContent="Отправить в поддержку"; }
       }
-      const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(report)}`;
-      try{ if(window.Telegram?.WebApp?.openTelegramLink) window.Telegram.WebApp.openTelegramLink(shareUrl); else window.open(shareUrl,"_blank"); }catch{ window.open(shareUrl,"_blank"); }
     });
   }
   sheet.classList.remove("hidden"); sheet.setAttribute("aria-hidden","false");
