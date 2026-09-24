@@ -36,6 +36,7 @@ function showScreen(id){
     n.classList.toggle("active", n.dataset.nav === id);
   });
 
+  if(id === "home") updateRecentCheck();
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
@@ -43,6 +44,52 @@ function updateStats(){
   $("checks").textContent = state.checks;
   $("savedCount").textContent = state.saved.length;
   $("historyCount").textContent = state.history.length;
+  updateRecentCheck();
+}
+
+function updateRecentCheck(){
+  const box=$("recentCheck");
+  if(!box) return;
+  const item=state.history[0];
+  if(!item){ box.classList.add("hidden"); return; }
+  box.classList.remove("hidden");
+  $("recentProduct").textContent=item.product || "Последняя проверка";
+  $("recentMeta").textContent=`${item.domain || "FLIP"} · ${item.time || "сейчас"}`;
+  $("recentScore").textContent=item.score ? `${item.score}` : "—";
+}
+
+function updateResultChecklist(){
+  const boxes=[...document.querySelectorAll('[data-check-group="result"]')].filter(el=>el.matches('input[type="checkbox"]'));
+  if(!boxes.length) return;
+  const done=boxes.filter(b=>b.checked).length;
+  const pct=Math.round(done/boxes.length*100);
+  $("resultCheckText").textContent=`${done} из ${boxes.length} выполнено`;
+  $("resultCheckPercent").textContent=`${pct}%`;
+  $("resultCheckBar").style.width=`${pct}%`;
+  $("resultCheckDone").classList.toggle("hidden",done!==boxes.length);
+}
+
+function setScanStep(index){
+  document.querySelectorAll(".scan-step").forEach((el,i)=>{
+    el.classList.toggle("active",i<=index);
+    el.classList.toggle("current",i===index);
+  });
+}
+
+function playScan(hasManualData, done){
+  const status=$("scanStatus");
+  const messages=hasManualData
+    ? ["Ссылка получена", "Проверяем введённые данные…", "Считаем показатели…", "Готово"]
+    : ["Ссылка получена", "Проверяем формат ссылки…", "Готовим экран проверки…", "Готово — данных для расчёта пока нет"];
+  let step=0;
+  setScanStep(0);
+  status.textContent=messages[0];
+  const timer=setInterval(()=>{
+    step++;
+    setScanStep(Math.min(step,3));
+    status.textContent=messages[Math.min(step,3)];
+    if(step>=3){ clearInterval(timer); setTimeout(done,180); }
+  },220);
 }
 
 function renderSaved(){
@@ -71,7 +118,7 @@ function renderHistory(){
     <div class="history-item card selectable-item swipe-delete ${state.selectedHistory.has(i) ? "selected" : ""}" data-index="${i}">
       <div class="swipe-content">
         ${state.selectMode.history ? `<input class="selection-check" type="checkbox" data-select-history="${i}" ${state.selectedHistory.has(i) ? "checked" : ""}>` : ""}
-        <div class="item-icon">🔎</div><div class="item-main"><b>${escapeHtml(item.product)}</b><span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · ${item.net >= 0 ? "+" : ""}${item.net} BYN</span></div>
+        <div class="item-icon">🔎</div><div class="item-main"><b>${escapeHtml(item.product)}</b><span>${escapeHtml(item.domain)} · ${escapeHtml(item.time)} · ${item.score ? item.score + "/100" : (item.net >= 0 ? "+" : "") + item.net + " BYN"}</span></div>
       </div>
     </div>`).join("");
   bindSwipe(box,"history"); updateSelectionUI();
@@ -242,27 +289,19 @@ function runCheck(){
   const value = input.value.trim();
 
   if(value){
-    try{
-      new URL(value);
-    }catch{
-      toast("Проверь ссылку — нужен полный адрес");
-      return;
-    }
+    try{ new URL(value); }
+    catch{ toast("Проверь ссылку — нужен полный адрес"); return; }
   }
 
-  // Ссылка может быть проверена отдельно: без ручных цен FLIP не придумывает рынок,
-  // а показывает, что объявление принято и ждёт данных для расчёта.
   const hasManualData = Number($("buyInput").value || 0) > 0 || Number($("sellInput").value || 0) > 0 || getAnalogPrices().length > 0;
   let analysis;
   if(value && !hasManualData){
     analysis = {
-      product:"Объявление по ссылке",
-      domain:domainFromUrl(value), buy:0, market:0, gross:0, fee:0, net:0, feePercent:0,
+      product:"Объявление по ссылке", domain:domainFromUrl(value), buy:0, market:0, gross:0, fee:0, net:0, feePercent:0,
       score:0, risk:"Нет данных", riskClass:"medium", condition:"good", label:"Ссылка принята",
       manualSell:false, analogs:[], analogCount:0, confidence:"Нет данных", confidenceClass:"medium",
       confidenceText:"FLIP получил ссылку. Для расчёта цены добавь цену покупки и минимум 3 аналога или укажи цену продажи вручную.",
-      url:value,
-      riskText:"Автоматического чтения цены и данных площадки в этой версии нет — FLIP не делает вид, что знает то, чего не получил."
+      url:value, riskText:"Автоматического чтения цены и данных площадки в этой версии нет — FLIP не делает вид, что знает то, чего не получил."
     };
   }else{
     analysis = makeAnalysis(value);
@@ -274,9 +313,7 @@ function runCheck(){
   $("saveResult").textContent = "♡ Сохранить в избранное";
 
   const r = state.current;
-  $("resultSource").textContent = value
-    ? `${r.domain} · ссылка принята`
-    : "Ручной расчёт · без ссылки";
+  $("resultSource").textContent = value ? `${r.domain} · ссылка принята` : "Ручной расчёт · без ссылки";
   $("resultProduct").textContent = r.product;
   $("buyPrice").textContent = r.buy > 0 ? `${r.buy.toLocaleString("ru-RU")} BYN` : "—";
   $("marketPrice").textContent = r.market > 0 ? `${r.market.toLocaleString("ru-RU")} BYN` : "—";
@@ -285,6 +322,7 @@ function runCheck(){
   $("net").textContent = r.market > 0 ? `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN` : "—";
   $("score").textContent = r.score > 0 ? r.score : "—";
   $("scoreLabel").textContent = r.label;
+  $("scoreBar").style.width = "0%";
   $("riskBadge").textContent = r.risk;
   $("riskBadge").className = `risk ${r.riskClass}`;
   $("riskText").textContent = r.riskText;
@@ -292,11 +330,16 @@ function runCheck(){
   $("confidenceBadge").className = `risk ${r.confidenceClass}`;
   $("confidenceText").textContent = r.confidenceText;
 
+  // Три понятных подоценки: они визуализируют уже имеющиеся данные, ничего не придумывая.
+  const priceScore = r.buy > 0 && r.market > 0 ? Math.max(0,Math.min(100,Math.round((r.market-r.buy)/Math.max(r.market,1)*100+55))) : 0;
+  const conditionScore = r.buy > 0 ? ({good:86,used:65,bad:42}[r.condition] || 60) : 0;
+  const riskScore = r.market > 0 ? Math.max(0,Math.min(100,100-(r.riskClass==="high"?72:r.riskClass==="medium"?42:18))) : 0;
+  $("priceScore").textContent=priceScore||"—"; $("priceScoreBar").style.width=`${priceScore}%`;
+  $("conditionScore").textContent=conditionScore||"—"; $("conditionScoreBar").style.width=`${conditionScore}%`;
+  $("riskScore").textContent=riskScore||"—"; $("riskScoreBar").style.width=`${riskScore}%`;
+
   const historyItem = {
-    product:r.product,
-    domain:r.domain,
-    gross:r.gross,
-    net:r.net,
+    product:r.product, domain:r.domain, gross:r.gross, net:r.net, score:r.score,
     time:new Date().toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"})
   };
   state.history.unshift(historyItem);
@@ -307,12 +350,18 @@ function runCheck(){
   $("loading").classList.remove("hidden");
   $("resultContent").classList.add("hidden");
   showScreen("result");
+  updateResultChecklist();
 
-  setTimeout(() => {
+  playScan(hasManualData,()=>{
     $("loading").classList.add("hidden");
     $("resultContent").classList.remove("hidden");
-    requestAnimationFrame(() => $("scoreBar").style.width = `${r.score}%`);
-  }, 650);
+    requestAnimationFrame(()=>{
+      $("scoreBar").style.width = `${r.score}%`;
+      ["priceScoreBar","conditionScoreBar","riskScoreBar"].forEach(id=>{
+        const el=$(id); if(el) el.style.width=el.style.width;
+      });
+    });
+  });
 }
 
 function saveCurrent(){
@@ -442,7 +491,14 @@ document.querySelectorAll(".condition").forEach(btn => {
   });
 });
 
-document.querySelectorAll(".check-item input").forEach((box,i)=>{const key=`flipCheck_${i}`;box.checked=localStorage.getItem(key)==="1";box.addEventListener("change",()=>localStorage.setItem(key,box.checked?"1":"0"));});
+document.querySelectorAll(".check-item input").forEach((box,i)=>{
+  const group=box.dataset.checkGroup || (box.closest(".deal-steps")?"deal":box.closest("#buy")?"buy":"misc");
+  const groupIndex=[...document.querySelectorAll(`.check-item input`)].filter(x=>(x.dataset.checkGroup || (x.closest(".deal-steps")?"deal":x.closest("#buy")?"buy":"misc"))===group).indexOf(box);
+  const key=`flipCheck_${group}_${groupIndex}`;
+  box.checked=localStorage.getItem(key)==="1";
+  box.addEventListener("change",()=>{localStorage.setItem(key,box.checked?"1":"0"); if(group==="result") updateResultChecklist();});
+});
+updateResultChecklist();
 
 
 function openInfo(type){
@@ -475,3 +531,5 @@ if(window.Telegram && window.Telegram.WebApp){
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
 }
+
+$("recentOpen")?.addEventListener("click",()=>{ if(state.current){showScreen("result");$("loading").classList.add("hidden");$("resultContent").classList.remove("hidden");}else showScreen("history"); });

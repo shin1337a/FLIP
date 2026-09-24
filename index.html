@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0d">
   <title>FLIP — поиск возможностей</title>
-  <link rel="stylesheet" href="style.css?v=1.4">
+  <link rel="stylesheet" href="style.css?v=1.5">
 </head>
 <body>
   <div class="app">
@@ -35,10 +35,10 @@
 
         <div class="section-head compact"><div><div class="section-title">Что умеет FLIP</div><div class="section-sub">Один помощник вместо нескольких мелких инструментов.</div></div></div>
         <div class="feature-list">
-          <div class="feature card"><span>🔎</span><div><b>Оценка покупки</b><p>Цена, аналоги, расходы и основные риски.</p></div></div>
-          <div class="feature card"><span>📋</span><div><b>Чек-лист встречи</b><p>Не забудь проверить главное до оплаты.</p></div></div>
-          <div class="feature card"><span>📸</span><div><b>Помощь с объявлением</b><p>Фото + данные о вещи → заготовка объявления.</p></div></div>
-          <div class="feature card"><span>💬</span><div><b>Ответы покупателям</b><p>Готовые варианты для вопросов и торга.</p></div></div>
+          <button class="feature card feature-btn" type="button" data-show="buy"><span>🔎</span><div><b>Оценка покупки</b><p>Цена, аналоги, расходы и основные риски.</p></div></button>
+          <button class="feature card feature-btn" type="button" data-show="deal"><span>📋</span><div><b>Чек-лист встречи</b><p>Не забудь проверить главное до оплаты.</p></div></button>
+          <button class="feature card feature-btn" type="button" data-show="sell"><span>📸</span><div><b>Помощь с объявлением</b><p>Фото + данные о вещи → заготовка объявления.</p></div></button>
+          <button class="feature card feature-btn" type="button" data-show="sell"><span>💬</span><div><b>Ответы покупателям</b><p>Готовые варианты для вопросов и торга.</p></div></button>
         </div>
 
         <div class="section-head compact"><div><div class="section-title">Быстрый расчёт</div><div class="section-sub">Старый инструмент FLIP никуда не делся.</div></div></div>
@@ -55,6 +55,11 @@
             <label class="full-label">Расходы / комиссия<div class="money-input"><input id="feeInput" type="number" inputmode="decimal" value="5" min="0" max="100"><span>%</span></div></label>
             <div class="condition-row"><span>Состояние</span><div class="condition-buttons"><button type="button" data-condition="good" class="condition active">Хорошее</button><button type="button" data-condition="used" class="condition">Среднее</button><button type="button" data-condition="bad" class="condition">Плохое</button></div></div>
           </div>
+        </div>
+
+        <div id="recentCheck" class="recent-check card hidden">
+          <div class="recent-top"><div><span class="recent-kicker">ПОСЛЕДНЯЯ ПРОВЕРКА</span><b id="recentProduct">—</b><small id="recentMeta">—</small></div><span id="recentScore" class="recent-score">—</span></div>
+          <button id="recentOpen" class="recent-open" type="button">Открыть результат <span>→</span></button>
         </div>
       </section>
 
@@ -99,9 +104,15 @@
         </div>
 
         <div id="loading" class="loading card">
-          <div class="spinner"></div>
-          <b>FLIP анализирует объявление…</b>
-          <span>Считаем демонстрационные показатели</span>
+          <div class="scan-orb"><span></span></div>
+          <b>FLIP Scan</b>
+          <span id="scanStatus">Проверяем ссылку…</span>
+          <div class="scan-steps">
+            <div class="scan-step active" data-scan-step="0"><i>1</i><span>Ссылка получена</span></div>
+            <div class="scan-step" data-scan-step="1"><i>2</i><span>Проверяем данные</span></div>
+            <div class="scan-step" data-scan-step="2"><i>3</i><span>Считаем показатели</span></div>
+            <div class="scan-step" data-scan-step="3"><i>4</i><span>Готово</span></div>
+          </div>
         </div>
 
         <div id="resultContent" class="hidden">
@@ -115,6 +126,12 @@
             </div>
             <div class="score-label" id="scoreLabel">Есть что проверить</div>
             <div class="progress"><i id="scoreBar"></i></div>
+          </div>
+
+          <div class="score-breakdown">
+            <div class="score-mini card"><span>💰 Цена</span><b id="priceScore">—</b><i><em id="priceScoreBar"></em></i></div>
+            <div class="score-mini card"><span>🔎 Проверка</span><b id="conditionScore">—</b><i><em id="conditionScoreBar"></em></i></div>
+            <div class="score-mini card"><span>🛡️ Риск</span><b id="riskScore">—</b><i><em id="riskScoreBar"></em></i></div>
           </div>
 
           <div class="section-title result-title">Расчёт</div>
@@ -132,12 +149,14 @@
             <p id="riskText">Главный риск — состояние товара и фактическая цена продажи.</p>
           </div>
 
-          <div class="checklist card">
-            <b>Что проверить перед покупкой</b>
-            <label class="check-item"><input type="checkbox"><span><strong>Состояние и комплект</strong><small>Проверь корпус, экран, аккумулятор и наличие зарядки/коробки.</small></span></label>
-            <label class="check-item"><input type="checkbox"><span><strong>IMEI / серийный номер</strong><small>Сверь номер на устройстве с документами и данными в настройках.</small></span></label>
-            <label class="check-item"><input type="checkbox"><span><strong>Историю ремонта</strong><small>Уточни, что менялось и кто выполнял ремонт.</small></span></label>
-            <label class="check-item"><input type="checkbox"><span><strong>Реальную цену аналогов</strong><small>Сравни несколько похожих объявлений в таком же состоянии.</small></span></label>
+          <div class="checklist card result-checklist" data-check-group="result">
+            <div class="check-head"><div><b>Что проверить перед покупкой</b><small id="resultCheckText">0 из 4 выполнено</small></div><strong id="resultCheckPercent">0%</strong></div>
+            <div class="check-progress"><i id="resultCheckBar"></i></div>
+            <label class="check-item"><input type="checkbox" data-check-group="result"><span><strong>Состояние и комплект</strong><small>Проверь корпус, экран, аккумулятор и наличие зарядки/коробки.</small></span></label>
+            <label class="check-item"><input type="checkbox" data-check-group="result"><span><strong>IMEI / серийный номер</strong><small>Сверь номер на устройстве с документами и данными в настройках.</small></span></label>
+            <label class="check-item"><input type="checkbox" data-check-group="result"><span><strong>Историю ремонта</strong><small>Уточни, что менялось и кто выполнял ремонт.</small></span></label>
+            <label class="check-item"><input type="checkbox" data-check-group="result"><span><strong>Реальную цену аналогов</strong><small>Сравни несколько похожих объявлений в таком же состоянии.</small></span></label>
+            <div id="resultCheckDone" class="check-done hidden">🎉 Всё основное проверено. Можно переходить к сделке.</div>
           </div>
 
           <button id="saveResult" class="secondary-btn">♡ Сохранить в избранное</button>
@@ -231,6 +250,6 @@
     <div id="toast" class="toast"></div>
   </div>
 
-  <script src="app.js?v=1.4"></script>
+  <script src="app.js?v=1.5"></script>
 </body>
 </html>
