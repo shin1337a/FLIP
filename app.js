@@ -29,6 +29,8 @@ function showScreen(id){
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const screen = $(id);
   if(screen) screen.classList.add("active");
+  const footer = $("homeFooter");
+  if(footer) footer.classList.toggle("hidden", id !== "home");
 
   document.querySelectorAll(".nav").forEach(n => {
     n.classList.toggle("active", n.dataset.nav === id);
@@ -243,13 +245,29 @@ function runCheck(){
     try{
       new URL(value);
     }catch{
-      toast("Похоже, это не ссылка");
+      toast("Проверь ссылку — нужен полный адрес");
       return;
     }
   }
 
-  const analysis = makeAnalysis(value);
-  if(!analysis) return;
+  // Ссылка может быть проверена отдельно: без ручных цен FLIP не придумывает рынок,
+  // а показывает, что объявление принято и ждёт данных для расчёта.
+  const hasManualData = Number($("buyInput").value || 0) > 0 || Number($("sellInput").value || 0) > 0 || getAnalogPrices().length > 0;
+  let analysis;
+  if(value && !hasManualData){
+    analysis = {
+      product:"Объявление по ссылке",
+      domain:domainFromUrl(value), buy:0, market:0, gross:0, fee:0, net:0, feePercent:0,
+      score:0, risk:"Нет данных", riskClass:"medium", condition:"good", label:"Ссылка принята",
+      manualSell:false, analogs:[], analogCount:0, confidence:"Нет данных", confidenceClass:"medium",
+      confidenceText:"FLIP получил ссылку. Для расчёта цены добавь цену покупки и минимум 3 аналога или укажи цену продажи вручную.",
+      url:value,
+      riskText:"Автоматического чтения цены и данных площадки в этой версии нет — FLIP не делает вид, что знает то, чего не получил."
+    };
+  }else{
+    analysis = makeAnalysis(value);
+    if(!analysis) return;
+  }
 
   state.checks++;
   state.current = analysis;
@@ -257,15 +275,15 @@ function runCheck(){
 
   const r = state.current;
   $("resultSource").textContent = value
-    ? `${r.domain} · предварительный расчёт`
+    ? `${r.domain} · ссылка принята`
     : "Ручной расчёт · без ссылки";
   $("resultProduct").textContent = r.product;
-  $("buyPrice").textContent = `${r.buy.toLocaleString("ru-RU")} BYN`;
-  $("marketPrice").textContent = `${r.market.toLocaleString("ru-RU")} BYN`;
-  $("marketMeta").textContent = r.manualSell ? "введено вручную" : `по ${r.analogCount} аналогам`;
-  $("gross").textContent = `${r.gross >= 0 ? "+" : ""}${r.gross.toLocaleString("ru-RU")} BYN`;
-  $("net").textContent = `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN`;
-  $("score").textContent = r.score;
+  $("buyPrice").textContent = r.buy > 0 ? `${r.buy.toLocaleString("ru-RU")} BYN` : "—";
+  $("marketPrice").textContent = r.market > 0 ? `${r.market.toLocaleString("ru-RU")} BYN` : "—";
+  $("marketMeta").textContent = r.market > 0 ? (r.manualSell ? "введено вручную" : `по ${r.analogCount} аналогам`) : "данные ещё не указаны";
+  $("gross").textContent = r.market > 0 ? `${r.gross >= 0 ? "+" : ""}${r.gross.toLocaleString("ru-RU")} BYN` : "—";
+  $("net").textContent = r.market > 0 ? `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN` : "—";
+  $("score").textContent = r.score > 0 ? r.score : "—";
   $("scoreLabel").textContent = r.label;
   $("riskBadge").textContent = r.risk;
   $("riskBadge").className = `risk ${r.riskClass}`;
@@ -425,6 +443,28 @@ document.querySelectorAll(".condition").forEach(btn => {
 });
 
 document.querySelectorAll(".check-item input").forEach((box,i)=>{const key=`flipCheck_${i}`;box.checked=localStorage.getItem(key)==="1";box.addEventListener("change",()=>localStorage.setItem(key,box.checked?"1":"0"));});
+
+
+function openInfo(type){
+  const sheet=$( "infoSheet"), content=$( "infoContent" );
+  if(!sheet || !content) return;
+  if(type === "about"){
+    content.innerHTML = `<div class="info-kicker">О FLIP</div><h3>Помощник для б/у покупок и продаж</h3><p>FLIP помогает проверить объявление, подготовиться к встрече, собрать объявление и не забыть важные шаги сделки.</p><div class="info-list"><div>🛒 Покупка — цена, риски и чек-лист.</div><div>📦 Продажа — текст объявления и ответы.</div><div>🛡️ Сделка — пошаговая проверка перед оплатой.</div></div>`;
+  }else{
+    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Пока FLIP находится в тестовой версии. Если что-то работает не так, запиши, на каком экране это произошло и что именно нажал.</p><button class="primary-btn info-copy" type="button">Скопировать ссылку FLIP</button><div class="info-help">После копирования можно отправить ссылку разработчику вместе с описанием проблемы.</div>`;
+    content.querySelector(".info-copy")?.addEventListener("click", async()=>{
+      try{ await navigator.clipboard.writeText(location.href); toast("Ссылка FLIP скопирована"); }
+      catch{ toast("Не удалось скопировать ссылку"); }
+    });
+  }
+  sheet.classList.remove("hidden"); sheet.setAttribute("aria-hidden","false");
+}
+
+document.querySelectorAll("[data-footer-show]").forEach(btn=>btn.addEventListener("click",()=>showScreen(btn.dataset.footerShow)));
+document.querySelectorAll("[data-footer-info]").forEach(btn=>btn.addEventListener("click",()=>openInfo(btn.dataset.footerInfo)));
+document.querySelectorAll("[data-close-info]").forEach(btn=>btn.addEventListener("click",()=>{
+  $("infoSheet").classList.add("hidden"); $("infoSheet").setAttribute("aria-hidden","true");
+}));
 
 updateStats();
 renderSaved();

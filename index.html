@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0d">
   <title>FLIP — поиск возможностей</title>
-  <link rel="stylesheet" href="style.css?v=1.3">
+  <link rel="stylesheet" href="style.css?v=1.4">
 </head>
 <body>
   <div class="app">
@@ -202,12 +202,24 @@
       </section>
     </main>
 
-    <footer class="site-footer">
+    <footer id="homeFooter" class="site-footer">
       <div class="footer-brand">FLIP</div>
       <div class="footer-copy">Помощник для покупки и продажи б/у вещей</div>
-      <div class="footer-links"><span>Безопасность</span><span>О FLIP</span><span>Поддержка</span></div>
-      <div class="footer-note">FLIP помогает проверить информацию перед сделкой. Всегда перепроверяй важные данные самостоятельно.</div>
+      <div class="footer-links">
+        <button type="button" data-footer-show="deal">Безопасная сделка</button>
+        <button type="button" data-footer-info="about">О FLIP</button>
+        <button type="button" data-footer-info="support">Поддержка</button>
+      </div>
+      <div class="footer-note">Проверяй важные данные самостоятельно. FLIP помогает не забыть главное перед покупкой или продажей.</div>
     </footer>
+
+    <div id="infoSheet" class="info-sheet hidden" aria-hidden="true">
+      <div class="info-backdrop" data-close-info></div>
+      <div class="info-panel" role="dialog" aria-modal="true">
+        <button class="info-close" type="button" data-close-info aria-label="Закрыть">×</button>
+        <div id="infoContent"></div>
+      </div>
+    </div>
 
     <nav class="bottom-nav">
       <button class="nav active" data-nav="home"><span>⌂</span>Главная</button>
@@ -219,6 +231,6 @@
     <div id="toast" class="toast"></div>
   </div>
 
-  <script src="app.js?v=1.3"></script>
+  <script src="app.js?v=1.4"></script>
 </body>
 </html>
