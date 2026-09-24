@@ -100,3 +100,19 @@ button:active{transform:scale(.98)}
 .site-footer{background:transparent;border:0;border-top:1px solid #dedee3;border-radius:0;box-shadow:none;margin:10px 20px 24px;padding:18px 2px 4px}
 .footer-brand{font-size:20px;letter-spacing:-1px}.footer-copy{font-size:10px}.footer-links{gap:7px;margin-top:13px}.footer-links button{border:0;background:#111113;color:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:750}.footer-links button:nth-child(2){background:#e9e9ed;color:#222}.footer-links button:nth-child(3){background:#fff;color:#111;border:1px solid #dedee3}.footer-note{border:0;padding:0;margin-top:12px;font-size:8.5px;color:#92929a}
 .info-sheet{position:fixed;inset:0;z-index:50}.info-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(3px)}.info-panel{position:absolute;left:14px;right:14px;bottom:14px;max-width:532px;margin:auto;background:#fff;border-radius:24px;padding:23px 20px 20px;box-shadow:0 20px 60px rgba(0,0,0,.22);animation:sheetIn .22s ease both}.info-close{position:absolute;right:13px;top:13px;border:0;background:#ededf0;border-radius:50%;width:32px;height:32px;font-size:20px}.info-kicker{font-size:9px;font-weight:900;letter-spacing:1.2px;color:#888892}.info-panel h3{font-size:22px;line-height:1.05;letter-spacing:-.7px;margin:8px 38px 8px 0}.info-panel p{font-size:12px;line-height:1.5;color:#66666f;margin:0}.info-list{display:grid;gap:8px;margin-top:14px;font-size:11px;line-height:1.4}.info-help{font-size:10px;line-height:1.4;color:#888892;margin-top:9px}.info-copy{margin-top:15px!important}@keyframes sheetIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* FLIP 1.4.1 — clearer black accent + clean white feature cards + footer press state */
+.mode-card:nth-child(2){background:#111113;color:#fff;border-color:#111113}
+.mode-card:nth-child(2) span{color:#c5c5cb}
+.mode-card:nth-child(2)>strong{color:#fff}
+.mode-card:nth-child(2) .mode-icon{background:#2a2a2e}
+
+.feature:nth-child(1),
+.feature:nth-child(2),
+.feature:nth-child(3),
+.feature:nth-child(4){background:#fff}
+
+.footer-links button,
+.footer-links button:nth-child(2),
+.footer-links button:nth-child(3){background:#fff;color:#111;border:1px solid #dedee3;transition:background-color .16s ease,color .16s ease,border-color .16s ease,transform .16s ease}
+.footer-links button:active{background:#111113;color:#fff;border-color:#111113;transform:scale(.97)}
