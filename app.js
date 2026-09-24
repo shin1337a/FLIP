@@ -96,19 +96,45 @@ function deleteSelected(type){
 }
 function bindSwipe(box,type){
   box.querySelectorAll(".swipe-delete").forEach(card=>{
-    let sx=0,sy=0,moved=false;
-    card.addEventListener("touchstart",e=>{if(state.selectMode[type])return;const t=e.touches[0];sx=t.clientX;sy=t.clientY;moved=false},{passive:true});
-    card.addEventListener("touchmove",e=>{if(state.selectMode[type])return;const t=e.touches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy))moved=true},{passive:true});
-    card.addEventListener("touchend",e=>{
-      if(state.selectMode[type]||!moved)return;
-      const ex=e.changedTouches[0].clientX;
-      if(sx-ex>45){
+    let sx=0,sy=0,dx=0,moved=false,horizontal=false;
+    card.addEventListener("touchstart",e=>{
+      if(state.selectMode[type])return;
+      const t=e.touches[0]; sx=t.clientX; sy=t.clientY; dx=0; moved=false; horizontal=false;
+      card.classList.remove("swipe-dragging");
+    },{passive:true});
+    card.addEventListener("touchmove",e=>{
+      if(state.selectMode[type])return;
+      const t=e.touches[0];
+      const rawX=t.clientX-sx, rawY=t.clientY-sy;
+      if(!horizontal && Math.abs(rawX)>10 && Math.abs(rawX)>Math.abs(rawY)*1.15) horizontal=true;
+      if(!horizontal)return;
+      moved=true;
+      if(rawX<0){
+        dx=Math.max(rawX,-card.offsetWidth*0.92);
+        card.classList.add("swipe-dragging");
+        card.style.transform=`translateX(${dx}px)`;
+        card.style.opacity=String(1-Math.min(Math.abs(dx)/(card.offsetWidth*1.15),.34));
+      }
+    },{passive:true});
+    card.addEventListener("touchend",()=>{
+      if(state.selectMode[type]||!moved||!horizontal)return;
+      card.classList.remove("swipe-dragging");
+      const threshold=Math.max(70,card.offsetWidth*.32);
+      if(Math.abs(dx)>=threshold){
         const i=Number(card.dataset.index);
         const list=type==="saved"?state.saved:state.history;
-        list.splice(i,1);
-        persist();
-        type==="saved"?renderSaved():renderHistory();
-        toast("Удалено");
+        card.classList.add("swipe-removing");
+        card.style.transform="translateX(-115%)";
+        card.style.opacity="0";
+        setTimeout(()=>{
+          list.splice(i,1);
+          persist();
+          type==="saved"?renderSaved():renderHistory();
+          toast("Удалено");
+        },190);
+      }else{
+        card.style.transform="translateX(0)";
+        card.style.opacity="1";
       }
     },{passive:true});
   });
