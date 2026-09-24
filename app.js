@@ -5,7 +5,8 @@ const state = {
   current: null,
   selectMode: {saved:false, history:false},
   selectedSaved: new Set(),
-  selectedHistory: new Set()
+  selectedHistory: new Set(),
+  pendingFavoriteUndo: null
 };
 
 const $ = id => document.getElementById(id);
@@ -17,12 +18,24 @@ function persist(){
   updateStats();
 }
 
-function toast(message){
+function toast(message, actionText = "", actionFn = null, duration = 1800){
   const el = $("toast");
-  el.textContent = message;
-  el.classList.add("show");
+  const messageEl = $("toastMessage");
+  const actionEl = $("toastAction");
+  if(!el || !messageEl) return;
+  messageEl.textContent = message;
   clearTimeout(window.__toast);
-  window.__toast = setTimeout(() => el.classList.remove("show"), 1800);
+  if(actionEl){
+    actionEl.classList.toggle("hidden", !actionText);
+    actionEl.textContent = actionText || "";
+    actionEl.onclick = null;
+    if(actionText && actionFn) actionEl.onclick = () => { el.classList.remove("show"); actionFn(); };
+  }
+  el.classList.add("show");
+  window.__toast = setTimeout(() => {
+    el.classList.remove("show");
+    if(actionEl){ actionEl.classList.add("hidden"); actionEl.onclick = null; }
+  }, duration);
 }
 
 function showScreen(id){
@@ -40,11 +53,27 @@ function showScreen(id){
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
+function updateProfileWelcome(){
+  const box=$("profileWelcome"), title=$("profileWelcomeTitle"), text=$("profileWelcomeText");
+  if(!box||!title||!text) return;
+  const isNew=state.checks===0 && state.saved.length===0 && state.history.length===0;
+  box.classList.toggle("hidden",!isNew);
+  if(isNew){ title.textContent="Добро пожаловать в FLIP"; text.textContent="Здесь будут твои проверки, избранное и история."; }
+}
+
+function applyTheme(mode){
+  const resolved=mode==="system" ? (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light") : mode;
+  document.documentElement.dataset.theme=resolved;
+  localStorage.setItem("flipTheme",mode);
+  const select=$("themeSelect"); if(select) select.value=mode;
+}
+
 function updateStats(){
   $("checks").textContent = state.checks;
   $("savedCount").textContent = state.saved.length;
   $("historyCount").textContent = state.history.length;
   updateRecentCheck();
+  updateProfileWelcome();
 }
 
 function updateRecentCheck(){
@@ -140,8 +169,16 @@ function toggleSelectAll(type){
 function deleteSelected(type){
   const set=type==="saved"?state.selectedSaved:state.selectedHistory;
   if(!set.size){toast("Сначала выбери элементы");return;}
-  [...set].sort((a,b)=>b-a).forEach(i=>type==="saved"?state.saved.splice(i,1):state.history.splice(i,1));
-  set.clear(); state.selectMode[type]=false; persist(); type==="saved"?renderSaved():renderHistory(); toast("Выбранное удалено");
+  const indices=[...set].sort((a,b)=>a-b);
+  if(type === "saved") {
+    const removed=indices.map(i=>({index:i,value:state.saved[i]})).filter(x=>x.value!==undefined);
+    removed.slice().sort((a,b)=>b.index-a.index).forEach(x=>state.saved.splice(x.index,1));
+    set.clear(); state.selectMode.saved=false; persist(); renderSaved();
+    armFavoriteUndo(removed,"Выбранное удалено из избранного");
+    return;
+  }
+  indices.slice().sort((a,b)=>b-a).forEach(i=>state.history.splice(i,1));
+  set.clear(); state.selectMode.history=false; persist(); renderHistory(); toast("Выбранное удалено");
 }
 function bindSwipe(box,type){
   box.querySelectorAll(".swipe-delete").forEach(card=>{
@@ -176,17 +213,101 @@ function bindSwipe(box,type){
         card.style.transform="translateX(-115%)";
         card.style.opacity="0";
         setTimeout(()=>{
+          const removedValue=list[i];
           list.splice(i,1);
           persist();
-          type==="saved"?renderSaved():renderHistory();
-          toast("Удалено");
-        },190);
+          if(type === "saved"){
+            renderSaved();
+            armFavoriteUndo([{index:i,value:removedValue}],"Удалено из избранного");
+          }else{
+            renderHistory();
+            toast("Удалено");
+          }
+        },220);
       }else{
         card.style.transform="translateX(0)";
         card.style.opacity="1";
       }
     },{passive:true});
   });
+}
+
+function armFavoriteUndo(removedItems, message="Удалено из избранного"){
+  if(!removedItems?.length) return;
+  if(state.pendingFavoriteUndo?.timer) clearTimeout(state.pendingFavoriteUndo.timer);
+  const payload=removedItems.filter(x=>x && x.value!==undefined).map(x=>({index:Number(x.index),value:x.value}));
+  if(!payload.length) return;
+  const restore=()=>{
+    payload.slice().sort((a,b)=>a.index-b.index).forEach(item=>{
+      const safeIndex=Math.max(0,Math.min(item.index,state.saved.length));
+      state.saved.splice(safeIndex,0,item.value);
+    });
+    state.pendingFavoriteUndo=null;
+    persist(); renderSaved();
+    toast("Вернули в избранное ❤️");
+  };
+  const timer=setTimeout(()=>{state.pendingFavoriteUndo=null;},5000);
+  state.pendingFavoriteUndo={timer,payload};
+  toast(message,"Вернуть",restore,5000);
+}
+
+function removeFavoriteByName(name){
+  const index=state.saved.indexOf(name);
+  if(index<0) return false;
+  const value=state.saved[index];
+  state.saved.splice(index,1);
+  persist(); renderSaved();
+  armFavoriteUndo([{index,value}],"Удалено из избранного");
+  return true;
+}
+
+function getTelegramUser(){
+  return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+}
+
+function hashToHue(value){
+  let hash=0; const text=String(value || "flip");
+  for(let i=0;i<text.length;i++){ hash=((hash<<5)-hash)+text.charCodeAt(i); hash|=0; }
+  return Math.abs(hash)%360;
+}
+
+function applyProfileAccent(hue){
+  document.documentElement.style.setProperty("--profile-accent",`hsl(${hue} 72% 52%)`);
+  document.documentElement.style.setProperty("--profile-accent-soft",`hsl(${hue} 80% 95%)`);
+}
+
+function extractAvatarColor(url,fallbackKey){
+  applyProfileAccent(hashToHue(fallbackKey));
+  if(!url) return;
+  const img=new Image(); img.crossOrigin="anonymous";
+  img.onload=()=>{
+    try{
+      const size=32,canvas=document.createElement("canvas"); canvas.width=size; canvas.height=size;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true}); ctx.drawImage(img,0,0,size,size);
+      const data=ctx.getImageData(0,0,size,size).data; let r=0,g=0,b=0,count=0;
+      for(let i=0;i<data.length;i+=4){
+        if(data[i+3]<180) continue;
+        const rr=data[i],gg=data[i+1],bb=data[i+2],mx=Math.max(rr,gg,bb),mn=Math.min(rr,gg,bb);
+        if(mx-mn<18 || mx>245) continue; r+=rr;g+=gg;b+=bb;count++;
+      }
+      if(!count) return; r/=count;g/=count;b/=count; const mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn;
+      let h=0; if(d){ if(mx===r) h=((g-b)/d)%6; else if(mx===g) h=(b-r)/d+2; else h=(r-g)/d+4; h=Math.round(h*60); if(h<0)h+=360; }
+      applyProfileAccent(h);
+    }catch(_){}
+  };
+  img.src=url;
+}
+
+function updateTelegramProfile(){
+  const user=getTelegramUser(),nameEl=$("profileName"),usernameEl=$("profileUsername"),idEl=$("profileId"),avatarEl=$("profileAvatar");
+  if(!nameEl||!usernameEl||!idEl||!avatarEl) return;
+  if(!user){
+    nameEl.textContent="Пользователь Telegram"; usernameEl.textContent="Открой FLIP внутри Telegram"; idEl.textContent="ID будет показан внутри Mini App"; avatarEl.textContent="👤"; applyProfileAccent(215); return;
+  }
+  const fullName=[user.first_name,user.last_name].filter(Boolean).join(" ").trim() || (user.username?`@${user.username}`:"Пользователь Telegram");
+  nameEl.textContent=fullName; usernameEl.textContent=user.username?`@${user.username}`:"Без username"; idEl.textContent=`Telegram ID: ${user.id}`;
+  if(user.photo_url){ avatarEl.innerHTML=`<img src="${escapeHtml(user.photo_url)}" alt="Аватар">`; extractAvatarColor(user.photo_url,user.id); }
+  else{ avatarEl.textContent=(user.first_name||"U").slice(0,1).toUpperCase(); extractAvatarColor("",user.id); }
 }
 
 function escapeHtml(value){
@@ -368,13 +489,10 @@ function saveCurrent(){
   if(!state.current) return;
   const name = state.current.product;
   if(state.saved.includes(name)){
-    state.saved = state.saved.filter(x => x !== name);
     $("saveResult").textContent = "♡ Сохранить в избранное";
     $("resultHeart").classList.remove("saved");
     $("resultHeart").textContent = "♡";
-    persist();
-    renderSaved();
-    toast("Удалено из избранного");
+    removeFavoriteByName(name);
     return;
   }
   state.saved.unshift(name);
@@ -394,10 +512,10 @@ function toggleDemoSave(button){
     button.textContent = "♥";
     toast("Добавлено в избранное ❤️");
   }else{
-    state.saved = state.saved.filter(x => x !== name);
     button.classList.remove("saved");
     button.textContent = "♡";
-    toast("Удалено из избранного");
+    removeFavoriteByName(name);
+    return;
   }
   persist();
   renderSaved();
@@ -507,10 +625,23 @@ function openInfo(type){
   if(type === "about"){
     content.innerHTML = `<div class="info-kicker">О FLIP</div><h3>Помощник для б/у покупок и продаж</h3><p>FLIP помогает проверить объявление, подготовиться к встрече, собрать объявление и не забыть важные шаги сделки.</p><div class="info-list"><div>🛒 Покупка — цена, риски и чек-лист.</div><div>📦 Продажа — текст объявления и ответы.</div><div>🛡️ Сделка — пошаговая проверка перед оплатой.</div></div>`;
   }else{
-    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Пока FLIP находится в тестовой версии. Если что-то работает не так, запиши, на каком экране это произошло и что именно нажал.</p><button class="primary-btn info-copy" type="button">Скопировать ссылку FLIP</button><div class="info-help">После копирования можно отправить ссылку разработчику вместе с описанием проблемы.</div>`;
-    content.querySelector(".info-copy")?.addEventListener("click", async()=>{
-      try{ await navigator.clipboard.writeText(location.href); toast("Ссылка FLIP скопирована"); }
-      catch{ toast("Не удалось скопировать ссылку"); }
+    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Опиши проблему прямо здесь. FLIP соберёт короткое обращение без личных данных: версия, экран, ссылка и твой текст.</p><textarea id="supportText" class="support-textarea" placeholder="Например: при нажатии «Проверить объявление»..." aria-label="Описание проблемы"></textarea><div class="support-actions"><button class="primary-btn" id="supportCopy" type="button">Скопировать обращение</button><button class="secondary-btn" id="supportTelegram" type="button">Отправить через Telegram</button></div><div class="support-meta">Ничего не отправляется автоматически. Кнопка Telegram открывает окно отправки, где ты сам выбираешь получателя.</div>`;
+    const makeReport=()=>{
+      const text=$("supportText")?.value?.trim() || "Без описания";
+      const screen=document.querySelector(".screen.active")?.id || "home";
+      return `FLIP — обращение в поддержку\nВерсия: 1.5.1\nЭкран: ${screen}\nСсылка: ${location.href}\n\nПроблема/идея: ${text}`;
+    };
+    content.querySelector("#supportCopy")?.addEventListener("click", async()=>{
+      try{ await navigator.clipboard.writeText(makeReport()); toast("Обращение скопировано"); }
+      catch{ toast("Не удалось скопировать обращение"); }
+    });
+    content.querySelector("#supportTelegram")?.addEventListener("click",()=>{
+      const report=makeReport();
+      const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(report)}`;
+      try{
+        if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(shareUrl); }
+        else{ window.open(shareUrl,"_blank"); }
+      }catch{ window.open(shareUrl,"_blank"); }
     });
   }
   sheet.classList.remove("hidden"); sheet.setAttribute("aria-hidden","false");
@@ -522,6 +653,17 @@ document.querySelectorAll("[data-close-info]").forEach(btn=>btn.addEventListener
   $("infoSheet").classList.add("hidden"); $("infoSheet").setAttribute("aria-hidden","true");
 }));
 
+const themeSelect=$("themeSelect");
+if(themeSelect){
+  const savedTheme=localStorage.getItem("flipTheme") || "system";
+  applyTheme(savedTheme);
+  themeSelect.addEventListener("change",()=>applyTheme(themeSelect.value));
+}
+if(window.matchMedia){
+  const media=window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener?.("change",()=>{ if((localStorage.getItem("flipTheme")||"system")==="system") applyTheme("system"); });
+}
+
 updateStats();
 renderSaved();
 renderHistory();
@@ -530,6 +672,9 @@ renderHistory();
 if(window.Telegram && window.Telegram.WebApp){
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
+  updateTelegramProfile();
+}else{
+  updateTelegramProfile();
 }
 
 $("recentOpen")?.addEventListener("click",()=>{ if(state.current){showScreen("result");$("loading").classList.add("hidden");$("resultContent").classList.remove("hidden");}else showScreen("history"); });

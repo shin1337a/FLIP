@@ -132,3 +132,122 @@ button:active{transform:scale(.98)}
 .score-card{position:relative;overflow:hidden}.score-card:after{content:"";position:absolute;inset:auto -30px -55px auto;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.07),transparent 65%);pointer-events:none}.score{transition:transform .5s cubic-bezier(.2,.8,.2,1)}
 @media(max-width:390px){.score-breakdown{gap:6px}.score-mini{padding:10px 8px}.recent-check{margin-left:16px;margin-right:16px}.feature-list{margin-left:16px;margin-right:16px}.mode-grid{margin-left:16px;margin-right:16px}.section-head{padding-left:16px;padding-right:16px}}
 @media(prefers-reduced-motion:reduce){.scan-orb span,.recent-check,.check-done{animation:none!important}.score-mini em,.check-progress i{transition:none!important}}
+
+
+/* FLIP 1.5.1 — all three home mode cards white */
+.mode-card:nth-child(1),
+.mode-card:nth-child(2),
+.mode-card:nth-child(3){background:#fff;color:var(--text);border-color:var(--line)}
+.mode-card:nth-child(1) span,
+.mode-card:nth-child(2) span,
+.mode-card:nth-child(3) span{color:var(--muted)}
+.mode-card:nth-child(1)>strong,
+.mode-card:nth-child(2)>strong,
+.mode-card:nth-child(3)>strong{color:#111113}
+.mode-card:nth-child(1) .mode-icon,
+.mode-card:nth-child(2) .mode-icon,
+.mode-card:nth-child(3) .mode-icon{background:var(--soft)}
+
+/* Support actions */
+.support-actions{display:grid;gap:9px;margin-top:15px}
+.support-actions .primary-btn,.support-actions .secondary-btn{margin-top:0}
+.support-textarea{width:100%;min-height:88px;resize:vertical;border:1px solid var(--line);background:#f7f7f9;border-radius:14px;padding:12px;outline:none;font:inherit;font-size:12px;line-height:1.4}
+.support-meta{font-size:9px;line-height:1.45;color:#9999a0;margin-top:9px}
+
+/* FLIP 1.6 — polished interactions, personal Telegram profile, section blocks */
+:root{--profile-accent:#1788f2;--profile-accent-soft:#eef7ff}
+
+/* Main mode cards: white, with blue link-like titles and arrows. */
+.mode-card:nth-child(1),
+.mode-card:nth-child(2),
+.mode-card:nth-child(3){
+  background:#fff;color:var(--text);border-color:var(--line);
+  box-shadow:0 4px 14px rgba(0,0,0,.035);
+}
+.mode-card b{color:#1687f2;font-weight:850}
+.mode-card>strong{color:#1687f2;font-size:24px;font-weight:850}
+.mode-card span{color:var(--muted)}
+.mode-card .mode-icon{background:var(--soft)}
+
+/* Section names are black blocks around the text, not just black text. */
+.section-head.compact{padding:0 20px 12px;margin-top:8px}
+.section-head.compact>div{
+  background:#111113;color:#fff;border-radius:18px;padding:14px 16px;
+  box-shadow:0 8px 20px rgba(0,0,0,.07);
+}
+.section-head.compact .section-title{color:#fff;font-size:18px;font-weight:900}
+.section-head.compact .section-sub{color:#bdbdc4;font-size:11px;line-height:1.35;margin-top:5px}
+
+/* Softer, more iOS-like motion across the landing page. */
+.screen.active{animation:screenIn .34s cubic-bezier(.22,.8,.24,1) both}
+@keyframes screenIn{0%{opacity:0;transform:translateY(10px) scale(.995)}100%{opacity:1;transform:none}}
+.mode-card,.action-tile,.feature,.reply-chip,.back-btn,.secondary-btn,.primary-btn,.heart-btn,.icon-btn,.footer-links button,.recent-open,.info-close,.copy-btn,.tool-btn{
+  transition:transform .24s cubic-bezier(.22,.8,.24,1),box-shadow .24s ease,background-color .24s ease,color .24s ease,border-color .24s ease;
+}
+.mode-card:active,.action-tile:active,.feature:active,.reply-chip:active,.back-btn:active,.secondary-btn:active,.primary-btn:active,.heart-btn:active,.footer-links button:active,.recent-open:active,.copy-btn:active,.tool-btn:active{transform:scale(.975)}
+
+/* All transient messages use rounded iOS-style surfaces. */
+.toast{
+  left:16px;right:16px;bottom:92px;display:flex;align-items:center;justify-content:center;gap:10px;
+  min-height:46px;padding:9px 10px 9px 15px;border-radius:20px;
+  background:rgba(17,17,19,.96);box-shadow:0 12px 35px rgba(0,0,0,.22);backdrop-filter:blur(12px);
+  font-size:11px;transition:opacity .28s ease,transform .34s cubic-bezier(.22,.8,.24,1);
+}
+.toast.show{transform:translateY(0)}
+.toast #toastMessage{flex:1;min-width:0;text-align:left}
+.toast #toastAction{
+  flex:0 0 auto;border:0;border-radius:999px;background:#fff;color:#111;padding:8px 12px;
+  font-size:10px;font-weight:850;transition:transform .22s cubic-bezier(.22,.8,.24,1),background-color .22s ease;
+}
+.toast #toastAction:active{transform:scale(.95);background:#e9e9ed}
+.info-panel{animation:sheetIn .34s cubic-bezier(.22,.8,.24,1) both;border-radius:26px}
+@keyframes sheetIn{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
+
+/* Personal Telegram profile */
+.profile-hero{margin:14px 16px 10px;padding:16px;border-radius:24px;overflow:hidden;position:relative;background:linear-gradient(145deg,#fff,var(--profile-accent-soft));border-color:#e4e4e8;box-shadow:0 8px 22px rgba(0,0,0,.045)}
+.profile-main{display:flex;align-items:center;gap:13px}
+.profile-avatar{width:64px;height:64px;flex:0 0 64px;border-radius:20px;background:var(--profile-accent);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;overflow:hidden;box-shadow:0 0 0 5px rgba(255,255,255,.72)}
+.profile-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-identity{min-width:0;display:flex;flex-direction:column;gap:4px}
+.profile-name-row{display:flex;align-items:center;gap:7px;min-width:0;flex-wrap:wrap}
+.profile-name-row>b{font-size:17px;letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.subscription-badge{background:var(--profile-accent);color:#fff;border-radius:999px;padding:5px 8px;font-size:8px;font-weight:900;letter-spacing:.2px;white-space:nowrap}
+.profile-username{font-size:11px;color:#55555e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-id{font-size:9px;color:#8b8b93;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-accent-line{height:4px;border-radius:99px;background:var(--profile-accent);margin-top:15px;opacity:.9}
+.profile-status-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:10px;color:#777780}
+.profile-status-row>b{color:var(--profile-accent);font-size:10px}
+
+@media(max-width:390px){
+  .profile-name-row>b{max-width:170px}
+  .profile-avatar{width:58px;height:58px;flex-basis:58px;border-radius:18px}
+}
+
+/* Profile welcome + theme control */
+.profile-welcome{margin:10px 16px;padding:15px;display:flex;gap:11px;align-items:center;border-radius:20px}
+.welcome-icon{width:42px;height:42px;border-radius:14px;background:var(--profile-accent-soft);display:grid;place-items:center;font-size:21px}
+.profile-welcome b{font-size:13px}.profile-welcome p{margin:4px 0 0;color:var(--muted);font-size:10px;line-height:1.4}
+.profile-settings{margin:10px 16px;padding:13px 15px;border-radius:20px}
+.profile-setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.profile-setting-row b{display:block;font-size:12px}.profile-setting-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+.profile-setting-row select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:8px 10px;font-size:10px;outline:none;color:var(--text)}
+
+/* Optional dark theme — prepared without changing the default light FLIP look. */
+html[data-theme="dark"]{--bg:#101012;--card:#1b1b1f;--text:#f5f5f7;--muted:#a2a2ab;--line:#303035;--soft:#29292e}
+html[data-theme="dark"] body{background:var(--bg);color:var(--text)}
+html[data-theme="dark"] .mode-card,
+html[data-theme="dark"] .feature,
+html[data-theme="dark"] .scanner,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .action-tile,
+html[data-theme="dark"] .reply-chip,
+html[data-theme="dark"] .site-footer{background:#1b1b1f;color:var(--text);border-color:#303035}
+html[data-theme="dark"] .mode-card b{color:#4aa2ff}
+html[data-theme="dark"] .mode-card>strong{color:#4aa2ff}
+html[data-theme="dark"] .mode-card span,html[data-theme="dark"] .feature p{color:#aaaab2}
+html[data-theme="dark"] .section-head.compact>div{background:#fff;color:#111}
+html[data-theme="dark"] .section-head.compact .section-title{color:#111}
+html[data-theme="dark"] .section-head.compact .section-sub{color:#68686f}
+html[data-theme="dark"] .profile-hero{background:linear-gradient(145deg,#1b1b1f,var(--profile-accent-soft))}
+html[data-theme="dark"] .profile-settings select{background:#222226;color:#fff;border-color:#3b3b40}
+html[data-theme="dark"] .info-panel{background:#1b1b1f;color:#fff}
