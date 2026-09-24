@@ -11,6 +11,10 @@ const state = {
 
 const $ = id => document.getElementById(id);
 
+// Set this after creating the separate FLIP support Telegram account.
+// Example: "FLIP_support" (without the @). Until then, the share flow remains available.
+const SUPPORT_USERNAME = "flip_support1";
+
 function persist(){
   localStorage.setItem("flipChecks", state.checks);
   localStorage.setItem("flipSaved", JSON.stringify(state.saved));
@@ -625,11 +629,11 @@ function openInfo(type){
   if(type === "about"){
     content.innerHTML = `<div class="info-kicker">О FLIP</div><h3>Помощник для б/у покупок и продаж</h3><p>FLIP помогает проверить объявление, подготовиться к встрече, собрать объявление и не забыть важные шаги сделки.</p><div class="info-list"><div>🛒 Покупка — цена, риски и чек-лист.</div><div>📦 Продажа — текст объявления и ответы.</div><div>🛡️ Сделка — пошаговая проверка перед оплатой.</div></div>`;
   }else{
-    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Опиши проблему прямо здесь. FLIP соберёт короткое обращение без личных данных: версия, экран, ссылка и твой текст.</p><textarea id="supportText" class="support-textarea" placeholder="Например: при нажатии «Проверить объявление»..." aria-label="Описание проблемы"></textarea><div class="support-actions"><button class="primary-btn" id="supportCopy" type="button">Скопировать обращение</button><button class="secondary-btn" id="supportTelegram" type="button">Отправить через Telegram</button></div><div class="support-meta">Ничего не отправляется автоматически. Кнопка Telegram открывает окно отправки, где ты сам выбираешь получателя.</div>`;
+    content.innerHTML = `<div class="info-kicker">ПОДДЕРЖКА</div><h3>Нашёл ошибку или есть идея?</h3><p>Опиши проблему прямо здесь. FLIP соберёт короткое обращение без личных данных: версия, экран, ссылка и твой текст.</p><textarea id="supportText" class="support-textarea" placeholder="Например: при нажатии «Проверить объявление»..." aria-label="Описание проблемы"></textarea><div class="support-actions"><button class="primary-btn" id="supportCopy" type="button">Скопировать обращение</button><button class="secondary-btn" id="supportTelegram" type="button">${SUPPORT_USERNAME ? "Открыть чат поддержки" : "Отправить через Telegram"}</button></div><div class="support-meta">${SUPPORT_USERNAME ? "Сообщение можно отправить прямо в отдельный чат поддержки FLIP — не нужно заранее иметь с ним переписку." : "После создания отдельного Telegram-аккаунта поддержки сюда можно поставить его публичный @username. Тогда кнопка будет сразу открывать чат с поддержкой."}</div>`;
     const makeReport=()=>{
       const text=$("supportText")?.value?.trim() || "Без описания";
       const screen=document.querySelector(".screen.active")?.id || "home";
-      return `FLIP — обращение в поддержку\nВерсия: 1.5.1\nЭкран: ${screen}\nСсылка: ${location.href}\n\nПроблема/идея: ${text}`;
+      return `FLIP — обращение в поддержку\nВерсия: 1.6.1\nЭкран: ${screen}\nСсылка: ${location.href}\n\nПроблема/идея: ${text}`;
     };
     content.querySelector("#supportCopy")?.addEventListener("click", async()=>{
       try{ await navigator.clipboard.writeText(makeReport()); toast("Обращение скопировано"); }
@@ -637,6 +641,14 @@ function openInfo(type){
     });
     content.querySelector("#supportTelegram")?.addEventListener("click",()=>{
       const report=makeReport();
+      if(SUPPORT_USERNAME){
+        const chatUrl=`https://t.me/${SUPPORT_USERNAME}`;
+        try{
+          if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(chatUrl); }
+          else{ window.open(chatUrl,"_blank"); }
+        }catch{ window.open(chatUrl,"_blank"); }
+        return;
+      }
       const shareUrl=`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(report)}`;
       try{
         if(window.Telegram?.WebApp?.openTelegramLink){ window.Telegram.WebApp.openTelegramLink(shareUrl); }

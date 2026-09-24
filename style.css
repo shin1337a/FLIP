@@ -169,14 +169,11 @@ button:active{transform:scale(.98)}
 .mode-card span{color:var(--muted)}
 .mode-card .mode-icon{background:var(--soft)}
 
-/* Section names are black blocks around the text, not just black text. */
+/* Section names: clean text emphasis, no surrounding block. */
 .section-head.compact{padding:0 20px 12px;margin-top:8px}
-.section-head.compact>div{
-  background:#111113;color:#fff;border-radius:18px;padding:14px 16px;
-  box-shadow:0 8px 20px rgba(0,0,0,.07);
-}
-.section-head.compact .section-title{color:#fff;font-size:18px;font-weight:900}
-.section-head.compact .section-sub{color:#bdbdc4;font-size:11px;line-height:1.35;margin-top:5px}
+.section-head.compact>div{background:transparent;color:#111113;border-radius:0;padding:0;box-shadow:none}
+.section-head.compact .section-title{color:#111113;font-size:18px;font-weight:900;letter-spacing:-.35px}
+.section-head.compact .section-sub{color:#777780;font-size:11px;line-height:1.35;margin-top:5px}
 
 /* Softer, more iOS-like motion across the landing page. */
 .screen.active{animation:screenIn .34s cubic-bezier(.22,.8,.24,1) both}
@@ -245,9 +242,9 @@ html[data-theme="dark"] .site-footer{background:#1b1b1f;color:var(--text);border
 html[data-theme="dark"] .mode-card b{color:#4aa2ff}
 html[data-theme="dark"] .mode-card>strong{color:#4aa2ff}
 html[data-theme="dark"] .mode-card span,html[data-theme="dark"] .feature p{color:#aaaab2}
-html[data-theme="dark"] .section-head.compact>div{background:#fff;color:#111}
-html[data-theme="dark"] .section-head.compact .section-title{color:#111}
-html[data-theme="dark"] .section-head.compact .section-sub{color:#68686f}
+html[data-theme="dark"] .section-head.compact>div{background:transparent;color:#fff}
+html[data-theme="dark"] .section-head.compact .section-title{color:#fff}
+html[data-theme="dark"] .section-head.compact .section-sub{color:#aaaab2}
 html[data-theme="dark"] .profile-hero{background:linear-gradient(145deg,#1b1b1f,var(--profile-accent-soft))}
 html[data-theme="dark"] .profile-settings select{background:#222226;color:#fff;border-color:#3b3b40}
 html[data-theme="dark"] .info-panel{background:#1b1b1f;color:#fff}
