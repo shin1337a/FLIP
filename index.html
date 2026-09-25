@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0b0b0d">
   <title>FLIP — поиск возможностей</title>
-  <link rel="stylesheet" href="style.css?v=1.8">
+  <link rel="stylesheet" href="style.css?v=1.9">
 </head>
 <body>
   <div class="app">
@@ -220,13 +220,14 @@
           </div>
           <div class="profile-accent-line"></div>
           <div class="profile-status-row"><span>Подписка</span><b id="profilePlan">FLIP Free</b></div>
+          <div class="profile-backend-row"><span>Сервер FLIP</span><b id="backendStatus">Проверяем…</b></div>
         </div>
 
         <div class="stats">
           <div class="stat card"><span>Проверок</span><b id="checks">0</b><small>за всё время</small></div>
           <div class="stat card"><span>Избранных</span><b id="savedCount">0</b><small>товаров</small></div>
           <div class="stat card"><span>История</span><b id="historyCount">0</b><small>результатов</small></div>
-          <div class="stat card"><span>Версия</span><b>1.8</b><small>FLIP Assistant</small></div>
+          <div class="stat card"><span>Версия</span><b>1.9</b><small>FLIP Assistant</small></div>
         </div>
 
         <div class="profile-welcome card" id="profileWelcome">
@@ -284,6 +285,7 @@
     <div id="toast" class="toast"><span id="toastMessage"></span><button id="toastAction" type="button" class="hidden">Вернуть</button></div>
   </div>
 
-  <script src="app.js?v=1.8"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="app.js?v=1.9"></script>
 </body>
 </html>

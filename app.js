@@ -15,6 +15,7 @@ const $ = id => document.getElementById(id);
 // Example: "FLIP_support" (without the @). Until then, the share flow remains available.
 const SUPPORT_USERNAME = "flip_support1";
 // Leave empty until a real FLIP backend is connected. Never put a Telegram bot token here.
+const BACKEND_ENDPOINT = "https://flip-backend.matveyverus9.workers.dev";
 const SUPPORT_ENDPOINT = "";
 
 function persist(){
@@ -269,6 +270,46 @@ function removeFavoriteByName(name){
 
 function getTelegramUser(){
   return window.Telegram?.WebApp?.initDataUnsafe?.user || null;
+}
+
+function setBackendStatus(text, state=""){
+  const el=$("backendStatus");
+  if(!el) return;
+  el.textContent=text;
+  el.classList.remove("online","offline");
+  if(state) el.classList.add(state);
+}
+
+async function checkBackend(){
+  try{
+    const res=await fetch(`${BACKEND_ENDPOINT}/api/health`,{method:"GET",cache:"no-store"});
+    if(!res.ok) throw new Error("health");
+    const data=await res.json();
+    if(data?.ok){ setBackendStatus("Онлайн","online"); return true; }
+    throw new Error("health");
+  }catch(_){
+    setBackendStatus("Недоступен","offline");
+    return false;
+  }
+}
+
+async function syncBackendProfile(){
+  const initData=window.Telegram?.WebApp?.initData || "";
+  if(!initData) return;
+  try{
+    const res=await fetch(`${BACKEND_ENDPOINT}/api/profile`,{
+      method:"GET",
+      headers:{"X-Flip-Init-Data":initData},
+      cache:"no-store"
+    });
+    if(!res.ok) return;
+    const data=await res.json();
+    if(!data?.ok) return;
+    const plan=data.plan==="pro" ? "FLIP Pro" : "FLIP Free";
+    const planEl=$("profilePlan"), badgeEl=$("profileSubscription");
+    if(planEl) planEl.textContent=plan;
+    if(badgeEl) badgeEl.textContent=plan;
+  }catch(_){}
 }
 
 function hashToHue(value){
@@ -725,7 +766,7 @@ updateStats();
 renderSaved();
 renderHistory();
 
-// Если приложение открыто внутри Telegram Mini App, просим Telegram развернуть его.
+// FLIP backend + Telegram Mini App connection.
 if(window.Telegram && window.Telegram.WebApp){
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
@@ -733,5 +774,7 @@ if(window.Telegram && window.Telegram.WebApp){
 }else{
   updateTelegramProfile();
 }
+checkBackend();
+syncBackendProfile();
 
 $("recentOpen")?.addEventListener("click",()=>{ if(state.current){showScreen("result");$("loading").classList.add("hidden");$("resultContent").classList.remove("hidden");}else showScreen("history"); });
