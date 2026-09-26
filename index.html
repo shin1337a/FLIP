@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#070a0f">
   <meta name="color-scheme" content="dark">
   <title>FLIP — помощник для покупок</title>
-  <link rel="stylesheet" href="style.css?v=3.0">
+  <link rel="stylesheet" href="style.css?v=4.0">
 </head>
 <body>
 <div class="app-shell">
@@ -14,7 +14,7 @@
     <button class="brand" data-nav="home" aria-label="Главная"><span class="brand-mark">F</span><span>FLIP</span></button>
     <div class="top-actions">
       <button class="icon-button" id="topTheme" aria-label="Тема">☾</button>
-      <button class="profile-mini" data-nav="profile"><span id="miniAvatar">👤</span></button>
+      <button class="menu-button" id="topMenu" aria-label="Меню"><span></span><span></span><span></span></button>
     </div>
   </header>
 
@@ -105,18 +105,19 @@
     </section>
 
     <section class="screen" id="support">
-      <div class="page-head"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2>Мы на связи</h2><p>Можно сразу открыть чат и написать человеку.</p></div></div>
+      <div class="page-head"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2>Мы на связи</h2><p>Если что-то не работает или есть вопрос — сразу переходи в чат.</p></div></div>
       <div class="support-hero"><div class="support-avatar">F</div><div><b>@flip_support1</b><small>Поддержка FLIP</small></div><span class="online-dot"></span></div>
-      <button class="primary" id="openSupport">Открыть чат поддержки</button>
-      <div class="support-compose"><label class="field-label">Или подготовить сообщение<textarea id="supportText" class="text-field textarea" placeholder="Опиши ошибку, вопрос или идею..."></textarea></label><button class="secondary" id="sendSupport">Открыть чат с текстом</button></div>
-      <div class="support-faq"><button data-faq="privacy"><span>Как FLIP работает с данными?</span><i>+</i></button><div id="faqPrivacy" class="faq-answer hidden">FLIP использует Telegram Mini App и сервер для функций, которым нужен backend. Пароли Telegram и коды входа сервис не просит.</div><button data-faq="guarantee"><span>FLIP гарантирует безопасность сделки?</span><i>+</i></button><div id="faqGuarantee" class="faq-answer hidden">Нет. FLIP помогает снизить риски и не забыть проверки, но не может гарантировать честность продавца или состояние товара.</div></div>
+      <button class="primary support-open-big" id="openSupport">Открыть чат поддержки</button>
+      <div class="support-note">Чат откроется прямо в Telegram. Не отправляй туда пароли, коды входа или данные банковской карты.</div>
     </section>
 
     <section class="screen" id="profile">
-      <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Настройки</h2><p>Профиль Telegram и управление FLIP.</p></div></div>
-      <div class="profile-card"><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
-      <div class="settings-group"><div class="settings-title">ОБЩЕЕ</div><div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div><div class="setting"><div><b>Тёмная тема</b><small>Спокойный интерфейс для Mini App</small></div><button class="switch" data-setting="dark"><i></i></button></div><div class="setting"><div><b>Анимации</b><small>Мягкие переходы интерфейса</small></div><button class="switch" data-setting="motion"><i></i></button></div></div>
-      <div class="settings-group"><div class="settings-title">ИНФОРМАЦИЯ</div><button class="menu-row" data-info="about"><span>О FLIP</span><i>→</i></button><button class="menu-row" data-info="trust"><span>Почему можно доверять FLIP</span><i>→</i></button><button class="menu-row" data-nav="support"><span>Поддержка</span><i>→</i></button></div>
+      <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Мой профиль</h2><p>Данные берутся из Telegram. Отдельная регистрация не нужна.</p></div></div>
+      <div class="profile-card profile-main"><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
+      <div class="profile-shortcuts">
+        <button class="menu-row" data-nav="subscription"><span>Моя подписка</span><i id="profileProHint">→</i></button>
+        <button class="menu-row" data-nav="balance"><span>Баланс и промокоды</span><i>→</i></button>
+      </div>
       <div class="backend-line"><span>Сервер FLIP</span><b id="backendStatus">проверяем…</b></div>
     </section>
   </main>
@@ -130,9 +131,10 @@
   </nav>
 
   <div id="toast" class="toast"><span id="toastText"></span></div>
+  <div id="menuSheet" class="menu-sheet hidden"><div class="menu-backdrop" data-close-menu></div><div class="menu-panel"><div class="menu-head"><div><span class="eyebrow">FLIP</span><h3>Меню</h3></div><button class="sheet-close" data-close-menu>×</button></div><div id="menuProfileMini" class="menu-profile"></div><div class="menu-section"><div class="settings-title">НАСТРОЙКИ</div><div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div><div class="setting"><div><b>Тёмная тема</b><small>Спокойный интерфейс для Mini App</small></div><button class="switch" data-setting="dark"><i></i></button></div><div class="setting"><div><b>Анимации</b><small>Мягкие переходы интерфейса</small></div><button class="switch" data-setting="motion"><i></i></button></div></div><div class="menu-section menu-links"><div class="settings-title">ИНФОРМАЦИЯ</div><button class="menu-row" data-info="about"><span>Что такое FLIP</span><i>→</i></button><button class="menu-row" data-info="how"><span>Как работает проверка</span><i>→</i></button><button class="menu-row" data-info="trust"><span>Почему можно доверять FLIP</span><i>→</i></button><button class="menu-row" data-info="privacy"><span>Как FLIP работает с данными</span><i>→</i></button></div><div class="menu-support"><span class="eyebrow">НУЖНА ПОМОЩЬ?</span><b>Открой чат с поддержкой</b><button class="primary" id="openSupportMenu">Открыть поддержку</button></div></div></div>
   <div id="sheet" class="sheet hidden"><div class="sheet-backdrop" data-close-sheet></div><div class="sheet-card"><button class="sheet-close" data-close-sheet>×</button><div id="sheetContent"></div></div></div>
 </div>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="app.js?v=3.0"></script>
+<script src="app.js?v=4.0"></script>
 </body>
 </html>
