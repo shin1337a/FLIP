@@ -1,1 +1,138 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0b0d"><title>FLIP</title><link rel="stylesheet" href="style.css"></head><body><div class="app"><header class="topbar"><div><div class="brand">FLIP</div><div class="subtitle" id="greeting">Помогаем покупать и продавать безопаснее</div></div><button class="icon-btn" id="profileBtn">☰</button></header><main><section class="hero"><h1>Что хочешь сделать?</h1><p>Проверяй объявления, готовься к сделке и сохраняй результаты.</p></section><section class="actions"><button class="action-card buy" data-screen="buy"><span><b>Хочу купить</b><small>Проверить объявление</small></span><strong>→</strong></button><button class="action-card dark" data-screen="sell"><span><b>Хочу продать</b><small>Создать объявление</small></span><strong>→</strong></button><button class="action-card dark" data-screen="deal"><span><b>У меня сделка</b><small>Чек-лист перед встречей</small></span><strong>→</strong></button></section><section class="section"><div class="section-title-row"><h2>История</h2><button class="text-btn" id="clearHistoryBtn">Очистить</button></div><div id="historyList" class="history-list"></div></section><section class="section"><h2 class="highlight-title">Что умеет FLIP</h2><div class="feature-grid"><div class="feature">🔎 Проверка объявлений</div><div class="feature">🛡️ Чек-листы сделки</div><div class="feature">💬 Помощь с продавцом</div><div class="feature">⭐ FLIP Pro</div></div></section><section class="section"><h2>Быстрый расчёт</h2><button class="wide-btn" id="calcBtn">Открыть расчёт</button></section><section class="section trust"><h2>Почему можно доверять FLIP</h2><p>FLIP работает внутри Telegram и не просит пароль Telegram, коды входа или данные банковской карты.</p><p>Сервис помогает заметить риски, но не может гарантировать честность продавца или состояние товара.</p></section></main><nav class="bottom-nav"><button class="nav-btn active" data-nav="home">Главная</button><button class="nav-btn" data-nav="history">История</button><button class="nav-btn" data-nav="profile">Профиль</button></nav></div><div class="modal hidden" id="screenModal"><div class="modal-card"><button class="close-btn" id="closeModal">×</button><div id="modalContent"></div></div></div><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#070a0f">
+  <meta name="color-scheme" content="dark">
+  <title>FLIP — помощник для покупок</title>
+  <link rel="stylesheet" href="style.css?v=3.0">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <button class="brand" data-nav="home" aria-label="Главная"><span class="brand-mark">F</span><span>FLIP</span></button>
+    <div class="top-actions">
+      <button class="icon-button" id="topTheme" aria-label="Тема">☾</button>
+      <button class="profile-mini" data-nav="profile"><span id="miniAvatar">👤</span></button>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="screen active" id="home">
+      <div class="home-greeting"><span class="eyebrow">FLIP ASSISTANT</span><h1>Привет, <span id="helloName">друг</span> 👋</h1><p>Покупай и продавай б/у вещи спокойнее — всё нужное в одном месте.</p></div>
+      <div class="quick-grid">
+        <button class="action-card featured" data-nav="buy"><span class="action-icon">⌕</span><span><b>Хочу купить</b><small>Проверить объявление и цену</small></span><i>→</i></button>
+        <button class="action-card" data-nav="sell"><span class="action-icon">＋</span><span><b>Хочу продать</b><small>Собрать объявление быстрее</small></span><i>→</i></button>
+        <button class="action-card" data-nav="deal"><span class="action-icon">✓</span><span><b>У меня сделка</b><small>Чек-лист перед оплатой</small></span><i>→</i></button>
+        <button class="action-card" data-nav="calc"><span class="action-icon">≈</span><span><b>Быстрый расчёт</b><small>Цена, маржа и расходы</small></span><i>→</i></button>
+      </div>
+
+      <div class="section-row"><div><span class="eyebrow">ВОЗМОЖНОСТИ</span><h2>Что умеет FLIP</h2></div></div>
+      <div class="info-stack">
+        <div class="info-card"><span>01</span><div><b>Проверка Kufar</b><p>Цена, аналоги, состояние и базовые риски объявления.</p></div></div>
+        <div class="info-card"><span>02</span><div><b>Подготовка к сделке</b><p>Пошаговые пункты, чтобы не забыть важное до передачи денег.</p></div></div>
+        <div class="info-card"><span>03</span><div><b>Продажа и ответы</b><p>Заготовка объявления и быстрые ответы покупателям.</p></div></div>
+      </div>
+
+      <div class="trust-card"><div class="trust-icon">◈</div><div><b>Почему можно доверять FLIP</b><p>FLIP не просит пароль Telegram, коды входа или данные банковской карты. Мы честно показываем ограничения проверки.</p></div></div>
+
+      <div class="recent-block" id="homeRecent"></div>
+    </section>
+
+    <section class="screen" id="buy">
+      <div class="page-head"><button class="back" data-nav="home">←</button><div><span class="eyebrow">ПОКУПКА</span><h2>Проверить объявление</h2><p>Вставь ссылку Kufar — FLIP попробует собрать данные.</p></div></div>
+      <div class="panel">
+        <label class="field-label" for="buyUrl">Ссылка на объявление</label>
+        <div class="input-line"><span>↗</span><input id="buyUrl" type="url" inputmode="url" placeholder="https://www.kufar.by/item/..." autocomplete="off"><button id="clearBuy" class="clear hidden">×</button></div>
+        <button class="primary" id="runBuy">Проверить</button>
+        <div class="micro-note">Сейчас поддерживается Kufar. Если данных не хватает, FLIP прямо об этом скажет.</div>
+      </div>
+      <button class="wide-link" data-nav="deal"><span>✓</span><div><b>Проверить перед встречей</b><small>Откроется отдельный чек-лист сделки</small></div><i>→</i></button>
+      <div id="buyResult" class="result-card hidden"></div>
+    </section>
+
+    <section class="screen" id="sell">
+      <div class="page-head"><button class="back" data-nav="home">←</button><div><span class="eyebrow">ПРОДАЖА</span><h2>Собрать объявление</h2><p>Заполни несколько полей — получишь готовый текст.</p></div></div>
+      <div class="panel form-panel">
+        <label class="field-label">Что продаёшь<input id="sellTitle" class="text-field" placeholder="Например: iPhone 13 128GB"></label>
+        <div class="two-cols"><label class="field-label">Цена<input id="sellPrice" class="text-field" type="number" inputmode="decimal" placeholder="1000"></label><label class="field-label">Состояние<select id="sellCondition" class="text-field"><option>Хорошее</option><option>Отличное</option><option>Среднее</option><option>Есть дефекты</option></select></label></div>
+        <label class="field-label">Что важно указать<textarea id="sellDetails" class="text-field textarea" placeholder="Комплект, аккумулятор, ремонт, дефекты..."></textarea></label>
+        <button class="primary" id="makeListing">Подготовить объявление</button>
+      </div>
+      <div id="listingOutput" class="result-card hidden"></div>
+      <div class="section-row small-row"><div><span class="eyebrow">ОТВЕТЫ</span><h3>Быстрые сообщения</h3></div></div>
+      <div class="chip-grid"><button data-reply="price">«Сделаете дешевле?»</button><button data-reply="condition">«Есть дефекты?»</button><button data-reply="delivery">«Отправите доставкой?»</button></div>
+      <div id="replyOutput" class="result-card hidden"></div>
+    </section>
+
+    <section class="screen" id="deal">
+      <div class="page-head"><button class="back" data-nav="home">←</button><div><span class="eyebrow">СДЕЛКА</span><h2>Перед оплатой</h2><p>Пройди пункты по порядку и не торопись.</p></div></div>
+      <div class="warning-card"><b>Не отправляй деньги только потому, что тебя торопят.</b><p>Подозрительная ссылка, странная предоплата или отказ от проверки — повод остановиться.</p></div>
+      <div class="check-list" id="dealChecks">
+        <label><input type="checkbox"><span class="num">01</span><div><b>До встречи</b><small>Уточни состояние, комплект, документы и историю ремонта.</small></div></label>
+        <label><input type="checkbox"><span class="num">02</span><div><b>На месте</b><small>Проверь товар, серийный номер, основные функции и дефекты.</small></div></label>
+        <label><input type="checkbox"><span class="num">03</span><div><b>Перед оплатой</b><small>Сверь товар и договорённости. Не передавай коды подтверждения.</small></div></label>
+        <label><input type="checkbox"><span class="num">04</span><div><b>После сделки</b><small>Сохрани переписку, чек/квитанцию и данные продавца.</small></div></label>
+      </div>
+    </section>
+
+    <section class="screen" id="calc">
+      <div class="page-head"><button class="back" data-nav="home">←</button><div><span class="eyebrow">РАСЧЁТ</span><h2>Быстрый расчёт</h2><p>Сравни покупку с ожидаемой ценой продажи.</p></div></div>
+      <div class="panel form-panel"><div class="two-cols"><label class="field-label">Покупка<input id="calcBuy" class="text-field" type="number" inputmode="decimal" placeholder="500"></label><label class="field-label">Продажа<input id="calcSell" class="text-field" type="number" inputmode="decimal" placeholder="700"></label></div><label class="field-label">Расходы, %<input id="calcFee" class="text-field" type="number" inputmode="decimal" value="5"></label><button class="primary" id="runCalc">Посчитать</button></div>
+      <div id="calcOutput" class="result-card hidden"></div>
+    </section>
+
+    <section class="screen" id="subscription">
+      <div class="page-head"><div><span class="eyebrow">FLIP PRO</span><h2>Подписка</h2><p>Расширенные инструменты для покупок и продаж.</p></div></div>
+      <div class="pro-hero"><div class="pro-badge">PRO</div><h3>Больше возможностей<br>в одной подписке.</h3><div class="price"><strong>199</strong><span>⭐ / 30 дней</span></div><button class="primary" id="buyPro">Подключить Pro</button><p id="proStatus" class="center-note">Проверяем статус…</p></div>
+      <div class="benefit-list"><div><span>◉</span><b>Расширенная проверка объявлений</b><small>Больше данных и подсказок при разборе.</small></div><div><span>◉</span><b>Мониторинг рынка</b><small>Основа для будущих уведомлений о выгодных предложениях.</small></div><div><span>◉</span><b>Умные ответы и продажа</b><small>Быстрее готовь объявления и отвечай покупателям.</small></div><div><span>◉</span><b>История и персональные инструменты</b><small>Больше операций и настроек.</small></div></div>
+      <div class="sub-note">Оплата проходит через Telegram Stars. FLIP не получает данные банковской карты.</div>
+    </section>
+
+    <section class="screen" id="balance">
+      <div class="page-head"><div><span class="eyebrow">БАЛАНС</span><h2>Баланс FLIP</h2><p>Бонусы, промокоды и информация об оплате.</p></div></div>
+      <div class="balance-card"><span class="eyebrow">FLIP BONUS</span><div class="balance-number" id="bonusBalance">0</div><small>бонусов</small><button class="secondary" id="promoOpen">Ввести промокод</button></div>
+      <div class="balance-row"><div><b>Telegram Stars</b><small>Используются для покупки Pro</small></div><span>⭐</span></div>
+      <div class="balance-row"><div><b>Пополнение</b><small>Если появится внутренняя бонусная система — она будет здесь.</small></div><span>→</span></div>
+      <div class="promo-box hidden" id="promoBox"><label class="field-label">Промокод<input id="promoInput" class="text-field" placeholder="FLIP-XXXX"></label><button class="primary" id="promoApply">Активировать</button><small id="promoMessage"></small></div>
+      <div class="sub-note">Stars за подписку не зачисляются на баланс пользователя FLIP — покупка Pro проходит отдельным платежом через Telegram.</div>
+    </section>
+
+    <section class="screen" id="history">
+      <div class="page-head"><div><span class="eyebrow">ИСТОРИЯ</span><h2>Мои проверки</h2><p>Последние результаты хранятся на этом устройстве.</p></div><button class="text-button" id="clearHistory">Очистить</button></div>
+      <div id="historyList" class="history-list"></div>
+    </section>
+
+    <section class="screen" id="support">
+      <div class="page-head"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2>Мы на связи</h2><p>Можно сразу открыть чат и написать человеку.</p></div></div>
+      <div class="support-hero"><div class="support-avatar">F</div><div><b>@flip_support1</b><small>Поддержка FLIP</small></div><span class="online-dot"></span></div>
+      <button class="primary" id="openSupport">Открыть чат поддержки</button>
+      <div class="support-compose"><label class="field-label">Или подготовить сообщение<textarea id="supportText" class="text-field textarea" placeholder="Опиши ошибку, вопрос или идею..."></textarea></label><button class="secondary" id="sendSupport">Открыть чат с текстом</button></div>
+      <div class="support-faq"><button data-faq="privacy"><span>Как FLIP работает с данными?</span><i>+</i></button><div id="faqPrivacy" class="faq-answer hidden">FLIP использует Telegram Mini App и сервер для функций, которым нужен backend. Пароли Telegram и коды входа сервис не просит.</div><button data-faq="guarantee"><span>FLIP гарантирует безопасность сделки?</span><i>+</i></button><div id="faqGuarantee" class="faq-answer hidden">Нет. FLIP помогает снизить риски и не забыть проверки, но не может гарантировать честность продавца или состояние товара.</div></div>
+    </section>
+
+    <section class="screen" id="profile">
+      <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Настройки</h2><p>Профиль Telegram и управление FLIP.</p></div></div>
+      <div class="profile-card"><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
+      <div class="settings-group"><div class="settings-title">ОБЩЕЕ</div><div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div><div class="setting"><div><b>Тёмная тема</b><small>Спокойный интерфейс для Mini App</small></div><button class="switch" data-setting="dark"><i></i></button></div><div class="setting"><div><b>Анимации</b><small>Мягкие переходы интерфейса</small></div><button class="switch" data-setting="motion"><i></i></button></div></div>
+      <div class="settings-group"><div class="settings-title">ИНФОРМАЦИЯ</div><button class="menu-row" data-info="about"><span>О FLIP</span><i>→</i></button><button class="menu-row" data-info="trust"><span>Почему можно доверять FLIP</span><i>→</i></button><button class="menu-row" data-nav="support"><span>Поддержка</span><i>→</i></button></div>
+      <div class="backend-line"><span>Сервер FLIP</span><b id="backendStatus">проверяем…</b></div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-nav="home"><span>⌂</span><b>Главная</b></button>
+    <button class="nav-item" data-nav="subscription"><span>★</span><b>Подписка</b></button>
+    <button class="nav-item" data-nav="balance"><span>◌</span><b>Баланс</b></button>
+    <button class="nav-item" data-nav="support"><span>◔</span><b>Поддержка</b></button>
+    <button class="nav-item" data-nav="profile"><span>●</span><b>Профиль</b></button>
+  </nav>
+
+  <div id="toast" class="toast"><span id="toastText"></span></div>
+  <div id="sheet" class="sheet hidden"><div class="sheet-backdrop" data-close-sheet></div><div class="sheet-card"><button class="sheet-close" data-close-sheet>×</button><div id="sheetContent"></div></div></div>
+</div>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="app.js?v=3.0"></script>
+</body>
+</html>
