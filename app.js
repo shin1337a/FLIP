@@ -452,7 +452,7 @@ function makeAnalysis(url){
   };
 }
 
-function runCheck(){
+async function runCheck(){
   const input = $("url");
   const value = input.value.trim();
 
@@ -463,13 +463,55 @@ function runCheck(){
 
   const hasManualData = Number($("buyInput").value || 0) > 0 || Number($("sellInput").value || 0) > 0 || getAnalogPrices().length > 0;
   let analysis;
-  if(value && !hasManualData){
+
+  if(value && !hasManualData && /(^|\.)kufar\.by$/i.test(new URL(value).hostname.replace(/^www\./,""))){
+    $("loading").classList.remove("hidden");
+    $("resultContent").classList.add("hidden");
+    showScreen("result");
+    try{
+      const res = await fetch(`${BACKEND_ENDPOINT}/api/listing?url=${encodeURIComponent(value)}`, {
+        method:"GET", cache:"no-store"
+      });
+      const data = await res.json().catch(()=>null);
+      if(!res.ok || !data?.ok) throw new Error(data?.error || "Не удалось получить объявление");
+
+      const buy = Number(data.price || 0);
+      const market = Number(data.market || 0);
+      const gross = market - buy;
+      const score = Number(data.priceScore || 0);
+
+      analysis = {
+        product: data.product || "Объявление Kufar",
+        domain: "Kufar",
+        buy, market, gross, fee:0, net:gross, feePercent:0,
+        score, risk:data.risk || "Средний", riskClass:data.riskClass || "medium",
+        condition: data.condition === "Б/у" ? "used" : "good",
+        label: score >= 75 ? "Цена ниже ориентира" : score >= 55 ? "Цена выглядит адекватно" : "Цена требует проверки",
+        manualSell:false, analogs:data.similarPrices || [], analogCount:Number(data.similarCount || 0),
+        confidence:data.confidence || "Низкая",
+        confidenceClass:data.confidence === "Высокая" ? "low" : data.confidence === "Средняя" ? "medium" : "high",
+        confidenceText: data.similarCount
+          ? `FLIP сравнил цену с ${data.similarCount} похожими предложениями на странице.`
+          : "На странице не найдено достаточно похожих цен для уверенного сравнения.",
+        url:value,
+        riskText: data.description
+          ? `${data.condition ? `Состояние: ${data.condition}. ` : ""}${data.description}`
+          : "Описание объявления не удалось извлечь полностью. Проверь товар лично перед оплатой.",
+        listing:data
+      };
+    }catch(err){
+      $("loading").classList.add("hidden");
+      toast(err?.message || "Не удалось проверить объявление", "", null, 3200);
+      showScreen("buy");
+      return;
+    }
+  }else if(value && !hasManualData){
     analysis = {
       product:"Объявление по ссылке", domain:domainFromUrl(value), buy:0, market:0, gross:0, fee:0, net:0, feePercent:0,
       score:0, risk:"Нет данных", riskClass:"medium", condition:"good", label:"Ссылка принята",
       manualSell:false, analogs:[], analogCount:0, confidence:"Нет данных", confidenceClass:"medium",
-      confidenceText:"FLIP получил ссылку. Для расчёта цены добавь цену покупки и минимум 3 аналога или укажи цену продажи вручную.",
-      url:value, riskText:"Автоматического чтения цены и данных площадки в этой версии нет — FLIP не делает вид, что знает то, чего не получил."
+      confidenceText:"Для автоматической оценки сейчас поддерживаются ссылки Kufar. Для других площадок добавь данные вручную.",
+      url:value, riskText:"FLIP не делает вид, что знает данные, которые не смог получить."
     };
   }else{
     analysis = makeAnalysis(value);
@@ -481,13 +523,13 @@ function runCheck(){
   $("saveResult").textContent = "♡ Сохранить в избранное";
 
   const r = state.current;
-  $("resultSource").textContent = value ? `${r.domain} · ссылка принята` : "Ручной расчёт · без ссылки";
+  $("resultSource").textContent = value ? `${r.domain} · данные получены` : "Ручной расчёт · без ссылки";
   $("resultProduct").textContent = r.product;
   $("buyPrice").textContent = r.buy > 0 ? `${r.buy.toLocaleString("ru-RU")} BYN` : "—";
-  $("marketPrice").textContent = r.market > 0 ? `${r.market.toLocaleString("ru-RU")} BYN` : "—";
+  $("marketPrice").textContent = r.market > 0 ? `${Math.round(r.market).toLocaleString("ru-RU")} BYN` : "—";
   $("marketMeta").textContent = r.market > 0 ? (r.manualSell ? "введено вручную" : `по ${r.analogCount} аналогам`) : "данные ещё не указаны";
-  $("gross").textContent = r.market > 0 ? `${r.gross >= 0 ? "+" : ""}${r.gross.toLocaleString("ru-RU")} BYN` : "—";
-  $("net").textContent = r.market > 0 ? `${r.net >= 0 ? "+" : ""}${r.net.toLocaleString("ru-RU")} BYN` : "—";
+  $("gross").textContent = r.market > 0 ? `${r.gross >= 0 ? "+" : ""}${Math.round(r.gross).toLocaleString("ru-RU")} BYN` : "—";
+  $("net").textContent = r.market > 0 ? `${r.net >= 0 ? "+" : ""}${Math.round(r.net).toLocaleString("ru-RU")} BYN` : "—";
   $("score").textContent = r.score > 0 ? r.score : "—";
   $("scoreLabel").textContent = r.label;
   $("scoreBar").style.width = "0%";
@@ -498,13 +540,26 @@ function runCheck(){
   $("confidenceBadge").className = `risk ${r.confidenceClass}`;
   $("confidenceText").textContent = r.confidenceText;
 
-  // Три понятных подоценки: они визуализируют уже имеющиеся данные, ничего не придумывая.
   const priceScore = r.buy > 0 && r.market > 0 ? Math.max(0,Math.min(100,Math.round((r.market-r.buy)/Math.max(r.market,1)*100+55))) : 0;
-  const conditionScore = r.buy > 0 ? ({good:86,used:65,bad:42}[r.condition] || 60) : 0;
+  const conditionScore = r.buy > 0 ? ({good:86,used:72,bad:42}[r.condition] || 60) : 0;
   const riskScore = r.market > 0 ? Math.max(0,Math.min(100,100-(r.riskClass==="high"?72:r.riskClass==="medium"?42:18))) : 0;
   $("priceScore").textContent=priceScore||"—"; $("priceScoreBar").style.width=`${priceScore}%`;
   $("conditionScore").textContent=conditionScore||"—"; $("conditionScoreBar").style.width=`${conditionScore}%`;
   $("riskScore").textContent=riskScore||"—"; $("riskScoreBar").style.width=`${riskScore}%`;
+
+  const li=r.listing;
+  const info=$("listingInfo");
+  if(info){
+    info.classList.toggle("hidden", !li);
+    if(li){
+      $("listingLocation").textContent=li.location || "—";
+      $("listingCondition").textContent=li.condition || "—";
+      $("listingSeller").textContent=li.seller || "—";
+      $("listingSellerSince").textContent=li.sellerSince || "—";
+      $("listingDescription").textContent=li.description || "Описание не получено.";
+      $("listingSimilar").textContent=li.similarCount ? `${li.similarCount} найдено` : "нет данных";
+    }
+  }
 
   const historyItem = {
     product:r.product, domain:r.domain, gross:r.gross, net:r.net, score:r.score,
@@ -517,7 +572,6 @@ function runCheck(){
 
   $("loading").classList.remove("hidden");
   $("resultContent").classList.add("hidden");
-  showScreen("result");
   updateResultChecklist();
 
   playScan(hasManualData,()=>{
@@ -714,7 +768,7 @@ function openInfo(type){
       try{
         if(SUPPORT_ENDPOINT){
           const fd=new FormData();
-          fd.append("text",text); fd.append("screen",screen); fd.append("url",location.href); fd.append("version","1.8");
+          fd.append("text",text); fd.append("screen",screen); fd.append("url",location.href); fd.append("version","2.0");
           if(photo) fd.append("photo",photo,photo.name);
           const res=await fetch(SUPPORT_ENDPOINT,{method:"POST",body:fd});
           if(!res.ok) throw new Error("support endpoint failed");
