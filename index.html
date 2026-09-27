@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#070a0f">
   <meta name="color-scheme" content="dark">
   <title>FLIP — помощник для покупок</title>
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=5.0">
 </head>
 <body>
 <div class="app-shell">
@@ -91,12 +91,12 @@
     </section>
 
     <section class="screen" id="balance">
-      <div class="page-head"><div><span class="eyebrow">БАЛАНС</span><h2>Баланс FLIP</h2><p>Бонусы, промокоды и информация об оплате.</p></div></div>
-      <div class="balance-card"><span class="eyebrow">FLIP BONUS</span><div class="balance-number" id="bonusBalance">0</div><small>бонусов</small><button class="secondary" id="promoOpen">Ввести промокод</button></div>
-      <div class="balance-row"><div><b>Telegram Stars</b><small>Используются для покупки Pro</small></div><span>⭐</span></div>
-      <div class="balance-row"><div><b>Пополнение</b><small>Если появится внутренняя бонусная система — она будет здесь.</small></div><span>→</span></div>
-      <div class="promo-box hidden" id="promoBox"><label class="field-label">Промокод<input id="promoInput" class="text-field" placeholder="FLIP-XXXX"></label><button class="primary" id="promoApply">Активировать</button><small id="promoMessage"></small></div>
-      <div class="sub-note">Stars за подписку не зачисляются на баланс пользователя FLIP — покупка Pro проходит отдельным платежом через Telegram.</div>
+      <div class="page-head"><div><span class="eyebrow">БАЛАНС</span><h2>Баланс</h2><p>Оплата Pro и промокоды. Внутреннего баланса FLIP пока нет.</p></div></div>
+      <div class="balance-card balance-stars"><span class="eyebrow">ОПЛАТА FLIP</span><div class="balance-stars-row"><div><div class="balance-number">⭐</div><small>Telegram Stars используются для покупки Pro</small></div><span class="balance-status">Баланс в Telegram</span></div><button class="secondary" id="promoOpen">Ввести промокод</button></div>
+      <div class="balance-row"><div><b>Telegram Stars</b><small>Оплата проходит через Telegram. FLIP не хранит Stars внутри приложения.</small></div><span>⭐</span></div>
+      <div class="balance-row"><div><b>Промокоды</b><small>В будущем здесь можно будет получить скидку на оплату Pro.</small></div><span>→</span></div>
+      <div class="promo-box hidden" id="promoBox"><label class="field-label">Промокод<input id="promoInput" class="text-field" placeholder="FLIP-XXXX"></label><button class="primary" id="promoApply">Проверить промокод</button><small id="promoMessage"></small></div>
+      <div class="sub-note">Внутреннего баланса FLIP сейчас нет. Telegram Stars остаются балансом Telegram и используются только при оплате доступных функций.</div>
     </section>
 
     <section class="screen" id="history">
@@ -105,18 +105,24 @@
     </section>
 
     <section class="screen" id="support">
-      <div class="page-head"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2>Мы на связи</h2><p>Если что-то не работает или есть вопрос — сразу переходи в чат.</p></div></div>
+      <div class="page-head"><div><span class="eyebrow">ПОДДЕРЖКА</span><h2>Мы на связи</h2><p>Вопросы, предложения, ошибки и баги — пишите сюда. Поможем разобраться с FLIP и будем рады вашим идеям.</p></div></div>
       <div class="support-hero"><div class="support-avatar">F</div><div><b>@flip_support1</b><small>Поддержка FLIP</small></div><span class="online-dot"></span></div>
       <button class="primary support-open-big" id="openSupport">Открыть чат поддержки</button>
       <div class="support-note">Чат откроется прямо в Telegram. Не отправляй туда пароли, коды входа или данные банковской карты.</div>
     </section>
 
     <section class="screen" id="profile">
-      <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Мой профиль</h2><p>Данные берутся из Telegram. Отдельная регистрация не нужна.</p></div></div>
-      <div class="profile-card profile-main"><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
-      <div class="profile-shortcuts">
-        <button class="menu-row" data-nav="subscription"><span>Моя подписка</span><i id="profileProHint">→</i></button>
-        <button class="menu-row" data-nav="balance"><span>Баланс и промокоды</span><i>→</i></button>
+      <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Мой профиль</h2><p>Аккаунт FLIP связан с твоим Telegram. Отдельная регистрация не нужна.</p></div></div>
+      <div class="profile-card profile-main" id="profileCard"><div class="profile-glow"></div><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
+      <div class="settings-group profile-settings">
+        <div class="settings-title">НАСТРОЙКИ</div>
+        <div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div>
+        <div class="setting"><div><b>Тёмная тема</b><small>Спокойный интерфейс для Mini App</small></div><button class="switch" data-setting="dark"><i></i></button></div>
+        <div class="setting"><div><b>Анимации</b><small>Мягкие переходы интерфейса</small></div><button class="switch" data-setting="motion"><i></i></button></div>
+      </div>
+      <div class="profile-links">
+        <button class="menu-row" data-nav="subscription"><div><b>FLIP Pro</b><small id="profileProHint">199 ⭐ / 30 дней</small></div><i>→</i></button>
+        <button class="menu-row" data-nav="balance"><div><b>Баланс и промокоды</b><small>Оплата и скидки</small></div><i>→</i></button>
       </div>
       <div class="backend-line"><span>Сервер FLIP</span><b id="backendStatus">проверяем…</b></div>
     </section>
@@ -131,10 +137,15 @@
   </nav>
 
   <div id="toast" class="toast"><span id="toastText"></span></div>
-  <div id="menuSheet" class="menu-sheet hidden"><div class="menu-backdrop" data-close-menu></div><div class="menu-panel"><div class="menu-head"><div><span class="eyebrow">FLIP</span><h3>Меню</h3></div><button class="sheet-close" data-close-menu>×</button></div><div id="menuProfileMini" class="menu-profile"></div><div class="menu-section"><div class="settings-title">НАСТРОЙКИ</div><div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div><div class="setting"><div><b>Тёмная тема</b><small>Спокойный интерфейс для Mini App</small></div><button class="switch" data-setting="dark"><i></i></button></div><div class="setting"><div><b>Анимации</b><small>Мягкие переходы интерфейса</small></div><button class="switch" data-setting="motion"><i></i></button></div></div><div class="menu-section menu-links"><div class="settings-title">ИНФОРМАЦИЯ</div><button class="menu-row" data-info="about"><span>Что такое FLIP</span><i>→</i></button><button class="menu-row" data-info="how"><span>Как работает проверка</span><i>→</i></button><button class="menu-row" data-info="trust"><span>Почему можно доверять FLIP</span><i>→</i></button><button class="menu-row" data-info="privacy"><span>Как FLIP работает с данными</span><i>→</i></button></div><div class="menu-support"><span class="eyebrow">НУЖНА ПОМОЩЬ?</span><b>Открой чат с поддержкой</b><button class="primary" id="openSupportMenu">Открыть поддержку</button></div></div></div>
-  <div id="sheet" class="sheet hidden"><div class="sheet-backdrop" data-close-sheet></div><div class="sheet-card"><button class="sheet-close" data-close-sheet>×</button><div id="sheetContent"></div></div></div>
+  <div id="menuSheet" class="menu-sheet hidden"><div class="menu-backdrop" data-close-menu></div><div class="menu-panel info-menu-panel"><div class="menu-head"><div><span class="eyebrow">FLIP</span><h3>Информация</h3><p>Всё важное о сервисе — прямо здесь.</p></div><button class="sheet-close" data-close-menu>×</button></div><div class="menu-section menu-links info-accordion">
+    <button class="menu-row info-row" data-info-toggle="about"><div><b>Что такое FLIP</b><small>Зачем нужен сервис</small></div><i>+</i></button><div class="info-answer hidden" id="info-about"><p>FLIP помогает покупать и продавать вещи спокойнее: проверяет доступные данные объявления, показывает рыночный ориентир и подсказывает, что проверить перед сделкой.</p></div>
+    <button class="menu-row info-row" data-info-toggle="how"><div><b>Как работает проверка</b><small>Что происходит после ссылки</small></div><i>+</i></button><div class="info-answer hidden" id="info-how"><p>Ты отправляешь ссылку на объявление. FLIP получает доступные данные, сравнивает цену с найденными похожими предложениями и отдельно показывает, какие сведения удалось получить, а каких не хватает.</p></div>
+    <button class="menu-row info-row" data-info-toggle="trust"><div><b>Почему можно доверять FLIP</b><small>Что сервис делает и чего не обещает</small></div><i>+</i></button><div class="info-answer hidden" id="info-trust"><p>FLIP не просит пароль Telegram, коды входа или данные банковской карты. Проверка снижает часть рисков, но не гарантирует честность продавца, подлинность товара или его фактическое состояние.</p></div>
+    <button class="menu-row info-row" data-info-toggle="privacy"><div><b>Как FLIP работает с данными</b><small>Telegram, проверки и сервер</small></div><i>+</i></button><div class="info-answer hidden" id="info-privacy"><p>Telegram нужен для запуска Mini App и определения пользователя. Сервер FLIP используется для проверки объявлений и будущих Pro-функций. Не отправляй в поддержку пароли, коды входа и данные банковской карты.</p></div>
+    <button class="menu-row info-row" data-info-toggle="limits"><div><b>Ограничения FLIP</b><small>Что важно учитывать</small></div><i>+</i></button><div class="info-answer hidden" id="info-limits"><p>Не все данные площадки доступны автоматически. Если источник не вернул информацию, FLIP должен прямо это показать. Итоговую проверку товара и продавца всегда нужно делать самостоятельно.</p></div>
+  </div></div></div>
 </div>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="app.js?v=4.0"></script>
+<script src="app.js?v=5.0"></script>
 </body>
 </html>

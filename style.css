@@ -32,3 +32,38 @@
 @media(max-width:420px){.menu-panel{width:94%}.menu-button{width:46px;height:46px}}
 :root[data-theme="light"] .menu-panel,:root[data-theme="light"] .menu-section,:root[data-theme="light"] .menu-profile,:root[data-theme="light"] .menu-support,:root[data-theme="light"] .support-note,:root[data-theme="light"] .read-block{background:#fff}
 :root[data-theme="light"] .menu-button{background:#fff;border-color:#dce3ec}.menu-button span{transition:.2s}
+
+/* FLIP 5.0 — cleaner info menu, profile settings, honest balance */
+:root{--tg-accent:#4d8cff}
+.profile-main{position:relative;overflow:hidden;min-height:86px;background:linear-gradient(145deg,#0f151e,#0b1017)}
+.profile-glow{position:absolute;right:-50px;top:-55px;width:190px;height:190px;border-radius:50%;background:var(--profile-accent,#4d8cff);opacity:.16;filter:blur(35px);pointer-events:none}
+.profile-main:after{content:"";position:absolute;right:0;top:0;width:42%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.025));pointer-events:none}
+.profile-main>*{position:relative;z-index:1}
+.profile-settings{margin-top:10px}
+.profile-links{border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-top:10px;background:#0d131b}
+.profile-links .menu-row{border-top:0}
+.profile-links .menu-row+.menu-row{border-top:1px solid var(--line)}
+.profile-links .menu-row div{min-width:0}
+.profile-links .menu-row b{display:block;font-size:13px}
+.profile-links .menu-row small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.info-menu-panel{width:min(430px,94%)}
+.info-menu-panel .menu-head p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.4}
+.info-accordion{margin-top:14px}
+.info-row{min-height:70px;padding:13px 14px}
+.info-row div{min-width:0}
+.info-row b{display:block;font-size:13px}
+.info-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.info-row i{font-size:18px;color:#7faaff;font-style:normal;transition:transform .2s}
+.info-answer{padding:0 15px 15px;border-top:1px solid var(--line);background:rgba(8,13,20,.7);animation:infoOpen .2s ease}
+.info-answer p{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.6}
+@keyframes infoOpen{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.balance-stars{background:linear-gradient(145deg,#101b2b,#0b1119);border-color:#263e61}
+.balance-stars-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:5px}
+.balance-stars .balance-number{font-size:42px;margin:0}
+.balance-status{font-size:10px;color:#7faaff;border:1px solid #274875;padding:7px 9px;border-radius:10px}
+.seller-questions{width:100%;margin-top:10px}
+.questions-box{margin-top:10px;padding:14px;border:1px solid var(--line);border-radius:17px;background:#0d131b}
+.questions-box b{font-size:13px}
+.questions-box ul{margin:9px 0 0;padding-left:18px;color:var(--muted);font-size:11px;line-height:1.65}
+.questions-box li::marker{color:#7faaff}
+@media(max-width:420px){.profile-main{padding:14px}.info-row{min-height:66px}}
