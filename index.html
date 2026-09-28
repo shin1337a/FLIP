@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#070a0f">
   <meta name="color-scheme" content="dark">
   <title>FLIP — помощник для покупок</title>
-  <link rel="stylesheet" href="style.css?v=5.0">
+  <link rel="stylesheet" href="style.css?v=5.1">
 </head>
 <body>
 <div class="app-shell">
@@ -113,7 +113,7 @@
 
     <section class="screen" id="profile">
       <div class="page-head"><div><span class="eyebrow">ПРОФИЛЬ</span><h2>Мой профиль</h2><p>Аккаунт FLIP связан с твоим Telegram. Отдельная регистрация не нужна.</p></div></div>
-      <div class="profile-card profile-main" id="profileCard"><div class="profile-glow"></div><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div>
+      <div class="profile-card profile-main" id="profileCard"><div class="profile-glow"></div><div class="profile-content"><div class="avatar-large" id="profileAvatar">👤</div><div class="profile-id"><b id="profileName">Пользователь Telegram</b><span id="profileUsername">@username</span><small id="profileId">Telegram ID недоступен</small></div><span class="plan-pill" id="profilePlan">FREE</span></div></div>
       <div class="settings-group profile-settings">
         <div class="settings-title">НАСТРОЙКИ</div>
         <div class="setting"><div><b>Уведомления</b><small>Напоминания и статусы FLIP</small></div><button class="switch" data-setting="notifications"><i></i></button></div>
@@ -137,15 +137,16 @@
   </nav>
 
   <div id="toast" class="toast"><span id="toastText"></span></div>
-  <div id="menuSheet" class="menu-sheet hidden"><div class="menu-backdrop" data-close-menu></div><div class="menu-panel info-menu-panel"><div class="menu-head"><div><span class="eyebrow">FLIP</span><h3>Информация</h3><p>Всё важное о сервисе — прямо здесь.</p></div><button class="sheet-close" data-close-menu>×</button></div><div class="menu-section menu-links info-accordion">
+  <div id="menuSheet" class="menu-sheet" aria-hidden="true"><div class="menu-backdrop" data-close-menu></div><div class="menu-panel info-menu-panel"><div class="menu-head"><div><span class="eyebrow">FLIP</span><h3>Информация</h3><p>Всё важное о сервисе — прямо здесь.</p></div><button class="sheet-close" data-close-menu>×</button></div><div class="menu-section menu-links info-accordion">
     <button class="menu-row info-row" data-info-toggle="about"><div><b>Что такое FLIP</b><small>Зачем нужен сервис</small></div><i>+</i></button><div class="info-answer hidden" id="info-about"><p>FLIP помогает покупать и продавать вещи спокойнее: проверяет доступные данные объявления, показывает рыночный ориентир и подсказывает, что проверить перед сделкой.</p></div>
     <button class="menu-row info-row" data-info-toggle="how"><div><b>Как работает проверка</b><small>Что происходит после ссылки</small></div><i>+</i></button><div class="info-answer hidden" id="info-how"><p>Ты отправляешь ссылку на объявление. FLIP получает доступные данные, сравнивает цену с найденными похожими предложениями и отдельно показывает, какие сведения удалось получить, а каких не хватает.</p></div>
+    <button class="menu-row info-row" data-info-toggle="analysis"><div><b>Как FLIP анализирует объявление</b><small>Цена, рынок и доступные данные</small></div><i>+</i></button><div class="info-answer hidden" id="info-analysis"><p>FLIP отдельно смотрит на цену объявления, найденные похожие предложения и доступные характеристики. Оценка и полнота данных — разные показатели: высокая оценка не означает, что площадка отдала всю информацию.</p></div>
     <button class="menu-row info-row" data-info-toggle="trust"><div><b>Почему можно доверять FLIP</b><small>Что сервис делает и чего не обещает</small></div><i>+</i></button><div class="info-answer hidden" id="info-trust"><p>FLIP не просит пароль Telegram, коды входа или данные банковской карты. Проверка снижает часть рисков, но не гарантирует честность продавца, подлинность товара или его фактическое состояние.</p></div>
     <button class="menu-row info-row" data-info-toggle="privacy"><div><b>Как FLIP работает с данными</b><small>Telegram, проверки и сервер</small></div><i>+</i></button><div class="info-answer hidden" id="info-privacy"><p>Telegram нужен для запуска Mini App и определения пользователя. Сервер FLIP используется для проверки объявлений и будущих Pro-функций. Не отправляй в поддержку пароли, коды входа и данные банковской карты.</p></div>
     <button class="menu-row info-row" data-info-toggle="limits"><div><b>Ограничения FLIP</b><small>Что важно учитывать</small></div><i>+</i></button><div class="info-answer hidden" id="info-limits"><p>Не все данные площадки доступны автоматически. Если источник не вернул информацию, FLIP должен прямо это показать. Итоговую проверку товара и продавца всегда нужно делать самостоятельно.</p></div>
   </div></div></div>
 </div>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="app.js?v=5.0"></script>
+<script src="app.js?v=5.1"></script>
 </body>
 </html>
